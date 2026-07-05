@@ -45,9 +45,11 @@ Cada módulo se entrega **completo y funcional** antes de avanzar. Estado:
 - ⬜ Sincronización carrito/wishlist con Supabase (se hará junto al checkout)
 - ⬜ Comparador de productos (pendiente)
 
-## Fase 5 — Landing page ⬜
-- Hero, banner promocional, categorías, nueva colección, destacados,
-  más vendidos, ofertas, testimonios, newsletter, FAQ, footer
+## Fase 5 — Landing page ✅
+- ✅ Hero full-bleed, marquee, categorías, nueva colección, más vendidos,
+  ofertas, banner promocional (promoción activa desde BD), banner editorial,
+  testimonios, FAQ (accordion), newsletter, footer
+- ✅ Componentes reutilizables: ProductShowcase, PromoBanner, Testimonials, FAQ
 
 ## Fase 6 — Chatbot IA ⬜
 - `/api/chat` con OpenRouter + bucle de tool calling

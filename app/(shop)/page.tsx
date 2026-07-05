@@ -2,9 +2,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ProductCard } from '@/components/shared/product-card';
 import { Marquee } from '@/components/shared/marquee';
+import { ProductShowcase } from '@/components/shared/product-showcase';
+import { PromoBanner } from '@/components/shared/promo-banner';
+import { Testimonials } from '@/components/shared/testimonials';
+import { FAQ } from '@/components/shared/faq';
+import { NewsletterSection } from '@/components/shared/newsletter-section';
 import { getProducts } from '@/features/catalog/queries';
+import { getActivePromotion } from '@/features/promotions/queries';
 
 const categories = [
   { name: 'Mujer', href: '/catalogo?gender=women', image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1000' },
@@ -13,13 +18,17 @@ const categories = [
 ];
 
 export default async function HomePage() {
-  const { products } = await getProducts({ sort: 'destacados' });
-  const featured = products.slice(0, 8);
+  const [newArrivals, bestSellers, onSale, promo] = await Promise.all([
+    getProducts({ sort: 'nuevos' }),
+    getProducts({ sort: 'vendidos' }),
+    getProducts({ ofertas: true, sort: 'destacados' }),
+    getActivePromotion(),
+  ]);
 
   return (
     <>
       {/* ============================ HERO ============================ */}
-      <section className="relative h-[88vh] min-h-[600px] w-full overflow-hidden bg-foreground">
+      <section className="relative h-[88vh] min-h-150 w-full overflow-hidden bg-foreground">
         <Image
           src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1600"
           alt="Editorial de moda Otoño/Invierno 2026"
@@ -29,7 +38,6 @@ export default async function HomePage() {
           className="object-cover object-center opacity-80 grayscale"
         />
         <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-black/30" />
-
         <div className="absolute inset-0 mx-auto flex max-w-[1600px] flex-col justify-end px-4 pb-14 sm:px-6">
           <p className="kicker mb-4 text-white/80 duration-700 animate-in fade-in slide-in-from-bottom-4">
             01 / Nueva colección
@@ -43,12 +51,7 @@ export default async function HomePage() {
                 Explorar <ArrowRight className="size-4" />
               </Link>
             </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="border-white text-white hover:bg-white hover:text-black"
-            >
+            <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-black">
               <Link href="/catalogo?ofertas=1">Ver ofertas</Link>
             </Button>
           </div>
@@ -67,6 +70,9 @@ export default async function HomePage() {
       <section className="mx-auto max-w-[1600px] px-4 py-16 sm:px-6">
         <div className="mb-8 flex items-end justify-between">
           <h2 className="text-4xl md:text-6xl">Compra por categoría</h2>
+          <Button asChild variant="link" className="hidden text-sm sm:inline-flex">
+            <Link href="/categorias">Ver todas <ArrowRight className="size-4" /></Link>
+          </Button>
         </div>
         <div className="grid gap-1 md:grid-cols-3">
           {categories.map((cat) => (
@@ -94,24 +100,35 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ==================== PRODUCTOS DESTACADOS ==================== */}
-      {featured.length > 0 && (
-        <section className="mx-auto max-w-[1600px] px-4 pb-20 sm:px-6">
-          <div className="mb-10 flex flex-wrap items-end justify-between gap-4 border-b-2 border-foreground pb-4">
-            <h2 className="text-4xl md:text-6xl">Lo más deseado</h2>
-            <Button asChild variant="link" className="text-sm">
-              <Link href="/catalogo">
-                Ver todo <ArrowRight className="size-4" />
-              </Link>
-            </Button>
-          </div>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4">
-            {featured.map((product, i) => (
-              <ProductCard key={product.id} product={product} priority={i < 2} />
-            ))}
-          </div>
-        </section>
-      )}
+      {/* ====================== NUEVA COLECCIÓN ====================== */}
+      <ProductShowcase
+        eyebrow="Recién llegado"
+        title="Nueva colección"
+        href="/catalogo?sort=nuevos"
+        products={newArrivals.products.slice(0, 4)}
+        className="mx-auto max-w-[1600px] px-4 pb-16 sm:px-6"
+      />
+
+      {/* ====================== BANNER PROMOCIONAL =================== */}
+      {promo && <PromoBanner promo={promo} />}
+
+      {/* ======================= MÁS VENDIDOS ======================= */}
+      <ProductShowcase
+        eyebrow="Favoritos del público"
+        title="Lo más vendido"
+        href="/catalogo?sort=vendidos"
+        products={bestSellers.products.slice(0, 4)}
+        className="mx-auto max-w-[1600px] px-4 py-16 sm:px-6"
+      />
+
+      {/* ========================== OFERTAS ========================= */}
+      <ProductShowcase
+        eyebrow="Precio reducido"
+        title="En oferta"
+        href="/catalogo?ofertas=1"
+        products={onSale.products.slice(0, 4)}
+        className="mx-auto max-w-[1600px] px-4 pb-16 sm:px-6"
+      />
 
       {/* ===================== BANNER EDITORIAL ====================== */}
       <section className="grid md:grid-cols-2">
@@ -134,11 +151,7 @@ export default async function HomePage() {
             sola. Menos, pero mejor.
           </p>
           <div>
-            <Button
-              asChild
-              size="lg"
-              className="bg-background text-foreground hover:bg-background/85"
-            >
+            <Button asChild size="lg" className="bg-background text-foreground hover:bg-background/85">
               <Link href="/catalogo?sort=nuevos">
                 Ver colección <ArrowRight className="size-4" />
               </Link>
@@ -146,6 +159,15 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ======================== TESTIMONIOS ======================= */}
+      <Testimonials />
+
+      {/* =========================== FAQ =========================== */}
+      <FAQ />
+
+      {/* ======================== NEWSLETTER ======================== */}
+      <NewsletterSection />
     </>
   );
 }
