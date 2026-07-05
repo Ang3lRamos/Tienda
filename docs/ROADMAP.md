@@ -51,10 +51,13 @@ Cada módulo se entrega **completo y funcional** antes de avanzar. Estado:
   testimonios, FAQ (accordion), newsletter, footer
 - ✅ Componentes reutilizables: ProductShowcase, PromoBanner, Testimonials, FAQ
 
-## Fase 6 — Chatbot IA ⬜
-- `/api/chat` con OpenRouter + bucle de tool calling
-- Herramientas de catálogo (search, details, availability, sale, best-sellers…)
-- Widget flotante con memoria, sugerencias rápidas y tarjetas de producto
+## Fase 6 — Chatbot IA ✅
+- ✅ `/api/chat` con OpenRouter + bucle de tool calling (5 pasos) + persistencia
+- ✅ Herramientas: search_products, get_product_details, get_best_sellers,
+  get_products_on_sale, list_categories_brands (consultan Supabase, datos reales)
+- ✅ Widget flotante con memoria, sugerencias rápidas y tarjetas de producto
+- ✅ Fallback automático entre modelos gratuitos (429) — default gpt-oss-20b:free
+- ✅ Verificado en vivo: ofertas, más vendido, búsqueda, stock por variante
 
 ## Fase 7 — Checkout (estructura para pagos) ⬜
 - Flujo de checkout, creación de pedido, reserva de stock

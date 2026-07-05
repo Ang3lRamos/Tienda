@@ -16,7 +16,7 @@ const publicSchema = z.object({
 const serverSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
   OPENROUTER_API_KEY: z.string().min(1).optional(),
-  OPENROUTER_MODEL: z.string().min(1).default('meta-llama/llama-3.3-70b-instruct:free'),
+  OPENROUTER_MODEL: z.string().min(1).default('openai/gpt-oss-20b:free'),
 });
 
 export const publicEnv = publicSchema.parse({
