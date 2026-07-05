@@ -16,10 +16,10 @@ const footerNav = [
   {
     title: 'Ayuda',
     links: [
-      { label: 'Envíos y entregas', href: '/ayuda/envios' },
-      { label: 'Cambios y devoluciones', href: '/ayuda/devoluciones' },
+      { label: 'Envíos', href: '/ayuda/envios' },
+      { label: 'Devoluciones', href: '/ayuda/devoluciones' },
       { label: 'Guía de tallas', href: '/ayuda/tallas' },
-      { label: 'Preguntas frecuentes', href: '/#faq' },
+      { label: 'FAQ', href: '/#faq' },
     ],
   },
   {
@@ -28,35 +28,44 @@ const footerNav = [
       { label: 'Sobre nosotros', href: '/sobre-nosotros' },
       { label: 'Sostenibilidad', href: '/sostenibilidad' },
       { label: 'Contacto', href: '/contacto' },
-      { label: 'Trabaja con nosotros', href: '/empleo' },
+      { label: 'Empleo', href: '/empleo' },
     ],
   },
 ];
 
 export function Footer() {
   return (
-    <footer className="border-t border-border/60 bg-muted/20">
-      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
-        <div className="grid gap-10 lg:grid-cols-[1.4fr_repeat(3,1fr)]">
-          {/* Marca + newsletter */}
-          <div className="space-y-4">
-            <Link href="/" className="font-serif text-2xl">
-              {siteConfig.name}
-            </Link>
-            <p className="max-w-sm text-sm text-muted-foreground">
-              Suscríbete y recibe novedades, lanzamientos y ofertas exclusivas.
+    <footer className="bg-foreground text-background">
+      <div className="mx-auto max-w-[1600px] px-4 py-16 sm:px-6">
+        {/* Newsletter */}
+        <div className="grid gap-8 border-b border-background/20 pb-12 lg:grid-cols-2 lg:items-end">
+          <h2 className="text-4xl leading-none md:text-6xl">
+            Únete al
+            <br />
+            club Átelier
+          </h2>
+          <div className="space-y-3">
+            <p className="text-sm text-background/70">
+              Novedades, lanzamientos y ofertas exclusivas en tu correo.
             </p>
             <NewsletterForm />
           </div>
+        </div>
 
-          {/* Columnas de enlaces */}
+        {/* Columnas */}
+        <div className="grid grid-cols-2 gap-8 py-12 md:grid-cols-4">
           {footerNav.map((col) => (
-            <nav key={col.title} className="space-y-3">
-              <h3 className="text-sm font-semibold">{col.title}</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
+            <nav key={col.title} className="space-y-4">
+              <h3 className="font-display text-xs font-bold tracking-[0.2em] text-background/50 uppercase">
+                {col.title}
+              </h3>
+              <ul className="space-y-2.5 text-sm">
                 {col.links.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className="transition-colors hover:text-foreground">
+                    <Link
+                      href={link.href}
+                      className="text-background/80 transition-colors hover:text-background"
+                    >
                       {link.label}
                     </Link>
                   </li>
@@ -64,23 +73,40 @@ export function Footer() {
               </ul>
             </nav>
           ))}
+          <div className="space-y-4">
+            <h3 className="font-display text-xs font-bold tracking-[0.2em] text-background/50 uppercase">
+              Síguenos
+            </h3>
+            <div className="flex items-center gap-3">
+              <Link href="#" aria-label="Instagram" className="text-background/80 hover:text-background">
+                <Instagram className="size-5" />
+              </Link>
+              <Link href="#" aria-label="Facebook" className="text-background/80 hover:text-background">
+                <Facebook className="size-5" />
+              </Link>
+              <Link href="#" aria-label="Twitter" className="text-background/80 hover:text-background">
+                <Twitter className="size-5" />
+              </Link>
+            </div>
+          </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border/60 pt-6 text-sm text-muted-foreground sm:flex-row">
+        {/* Wordmark gigante */}
+        <Link
+          href="/"
+          className="block overflow-hidden py-4 text-center select-none"
+          aria-label={siteConfig.name}
+        >
+          <span className="block font-display text-[15vw] leading-[0.8] font-black tracking-[-0.04em] whitespace-nowrap text-background uppercase">
+            {siteConfig.name}
+          </span>
+        </Link>
+
+        <div className="flex flex-col items-center justify-between gap-3 border-t border-background/20 pt-6 text-xs text-background/60 sm:flex-row">
           <p>
             © {new Date().getFullYear()} {siteConfig.name}. Todos los derechos reservados.
           </p>
-          <div className="flex items-center gap-4">
-            <Link href="#" aria-label="Instagram" className="hover:text-foreground">
-              <Instagram className="size-5" />
-            </Link>
-            <Link href="#" aria-label="Facebook" className="hover:text-foreground">
-              <Facebook className="size-5" />
-            </Link>
-            <Link href="#" aria-label="Twitter" className="hover:text-foreground">
-              <Twitter className="size-5" />
-            </Link>
-          </div>
+          <p className="tracking-wide uppercase">{siteConfig.tagline}</p>
         </div>
       </div>
     </footer>

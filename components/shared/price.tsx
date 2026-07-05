@@ -36,7 +36,7 @@ export function Price({
             {formatPrice(compareAt!)}
           </span>
           {showDiscount && (
-            <span className="text-xs font-semibold text-destructive">
+            <span className="bg-foreground px-1.5 py-0.5 text-[0.65rem] font-bold tracking-wider text-background">
               −{percent}%
             </span>
           )}

@@ -4,80 +4,80 @@
 @custom-variant dark (&:is(.dark *));
 
 /* =====================================================================
-   Sistema de diseño — Tienda de moda
-   Paleta editorial: neutros cálidos (ivory / stone / near-black) con un
-   acento sobrio. Estética premium, minimalista y elegante.
+   Sistema de diseño — MONO BRUTALISTA
+   Blanco y negro puros, contraste máximo, tipografía display gigante,
+   bordes duros. Estética editorial de pasarela / marca famosa.
    ===================================================================== */
 :root {
-  --radius: 0.65rem;
+  --radius: 0rem; /* bordes rectos (brutalista) */
 
-  --background: oklch(0.99 0.004 85);      /* ivory */
-  --foreground: oklch(0.18 0.01 60);       /* near-black cálido */
+  --background: oklch(1 0 0); /* white */
+  --foreground: oklch(0.09 0 0); /* near-black */
 
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.01 60);
+  --card-foreground: oklch(0.09 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.01 60);
+  --popover-foreground: oklch(0.09 0 0);
 
-  --primary: oklch(0.22 0.012 55);         /* casi negro */
-  --primary-foreground: oklch(0.98 0.004 85);
+  --primary: oklch(0.09 0 0); /* black */
+  --primary-foreground: oklch(1 0 0);
 
-  --secondary: oklch(0.96 0.006 80);
-  --secondary-foreground: oklch(0.18 0.01 60);
+  --secondary: oklch(0.96 0 0);
+  --secondary-foreground: oklch(0.09 0 0);
 
-  --muted: oklch(0.96 0.006 80);
-  --muted-foreground: oklch(0.5 0.01 60);
+  --muted: oklch(0.955 0 0);
+  --muted-foreground: oklch(0.44 0 0);
 
-  --accent: oklch(0.83 0.09 55);           /* terracota suave */
-  --accent-foreground: oklch(0.2 0.02 55);
+  --accent: oklch(0.09 0 0); /* sin color: el "acento" es el propio negro */
+  --accent-foreground: oklch(1 0 0);
 
-  --destructive: oklch(0.58 0.22 27);
-  --destructive-foreground: oklch(0.98 0 0);
+  --destructive: oklch(0.55 0.22 27);
+  --destructive-foreground: oklch(1 0 0);
 
-  --success: oklch(0.62 0.13 155);
-  --warning: oklch(0.75 0.14 75);
+  --success: oklch(0.45 0 0);
+  --warning: oklch(0.3 0 0);
 
-  --border: oklch(0.92 0.006 75);
-  --input: oklch(0.92 0.006 75);
-  --ring: oklch(0.55 0.05 55);
+  --border: oklch(0.9 0 0);
+  --input: oklch(0.85 0 0);
+  --ring: oklch(0.09 0 0);
 
-  --chart-1: oklch(0.55 0.12 55);
-  --chart-2: oklch(0.6 0.1 200);
-  --chart-3: oklch(0.65 0.13 145);
-  --chart-4: oklch(0.7 0.14 85);
-  --chart-5: oklch(0.6 0.16 320);
+  --chart-1: oklch(0.2 0 0);
+  --chart-2: oklch(0.4 0 0);
+  --chart-3: oklch(0.55 0 0);
+  --chart-4: oklch(0.7 0 0);
+  --chart-5: oklch(0.82 0 0);
 }
 
 .dark {
-  --background: oklch(0.16 0.008 60);
-  --foreground: oklch(0.95 0.005 85);
+  --background: oklch(0.06 0 0); /* black */
+  --foreground: oklch(0.98 0 0); /* white */
 
-  --card: oklch(0.2 0.01 60);
-  --card-foreground: oklch(0.95 0.005 85);
-  --popover: oklch(0.2 0.01 60);
-  --popover-foreground: oklch(0.95 0.005 85);
+  --card: oklch(0.09 0 0);
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.09 0 0);
+  --popover-foreground: oklch(0.98 0 0);
 
-  --primary: oklch(0.95 0.005 85);
-  --primary-foreground: oklch(0.2 0.01 60);
+  --primary: oklch(0.98 0 0); /* white */
+  --primary-foreground: oklch(0.09 0 0);
 
-  --secondary: oklch(0.26 0.01 60);
-  --secondary-foreground: oklch(0.95 0.005 85);
+  --secondary: oklch(0.16 0 0);
+  --secondary-foreground: oklch(0.98 0 0);
 
-  --muted: oklch(0.26 0.01 60);
-  --muted-foreground: oklch(0.68 0.01 70);
+  --muted: oklch(0.16 0 0);
+  --muted-foreground: oklch(0.65 0 0);
 
-  --accent: oklch(0.7 0.1 55);
-  --accent-foreground: oklch(0.16 0.01 60);
+  --accent: oklch(0.98 0 0);
+  --accent-foreground: oklch(0.09 0 0);
 
-  --destructive: oklch(0.65 0.2 25);
+  --destructive: oklch(0.62 0.22 25);
   --destructive-foreground: oklch(0.98 0 0);
 
-  --success: oklch(0.68 0.13 155);
-  --warning: oklch(0.78 0.14 75);
+  --success: oklch(0.75 0 0);
+  --warning: oklch(0.85 0 0);
 
-  --border: oklch(0.3 0.01 60);
-  --input: oklch(0.3 0.01 60);
-  --ring: oklch(0.7 0.04 60);
+  --border: oklch(0.22 0 0);
+  --input: oklch(0.28 0 0);
+  --ring: oklch(0.98 0 0);
 }
 
 @theme inline {
@@ -109,12 +109,25 @@
   --color-chart-5: var(--chart-5);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-xl: var(--radius);
+
+  /* Animaciones */
+  --animate-marquee: marquee 32s linear infinite;
+  --animate-marquee-fast: marquee 18s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 @layer base {
@@ -127,8 +140,46 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3, .font-display {
-    font-family: var(--font-serif);
-    letter-spacing: -0.01em;
+  /* Titulares brutalistas: display pesado, mayúsculas, tracking compacto. */
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+  ::selection {
+    background: var(--color-foreground);
+    color: var(--color-background);
+  }
+}
+
+@layer components {
+  /* Utilidad de titular gigante responsive (hero). */
+  .display-xxl {
+    font-family: var(--font-display);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.04em;
+    line-height: 0.86;
+    font-size: clamp(3.5rem, 13vw, 12rem);
+  }
+  .kicker {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 0.72rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-marquee-fast,
+  [class*='animate-marquee'] {
+    animation: none !important;
   }
 }

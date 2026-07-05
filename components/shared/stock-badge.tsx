@@ -6,9 +6,9 @@ const variantByStatus: Record<
   StockStatus,
   React.ComponentProps<typeof Badge>['variant']
 > = {
-  disponible: 'success',
-  ultimas_unidades: 'warning',
-  agotado: 'destructive',
+  disponible: 'outline',
+  ultimas_unidades: 'outline',
+  agotado: 'default',
 };
 
 /** Etiqueta visual del estado de inventario. */

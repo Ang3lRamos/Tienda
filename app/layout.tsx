@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Playfair_Display } from 'next/font/google';
+import { Inter, Archivo } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
 import { siteConfig } from '@/config/site';
@@ -11,9 +11,11 @@ const inter = Inter({
   display: 'swap',
 });
 
-const playfair = Playfair_Display({
-  variable: '--font-playfair',
+// Display tipográfico brutalista: grotesca pesada, hasta 900, para titulares XXL.
+const archivo = Archivo({
+  variable: '--font-archivo',
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800', '900'],
   display: 'swap',
 });
 
@@ -42,7 +44,7 @@ export default function RootLayout({
       <body
         className={cn(
           inter.variable,
-          playfair.variable,
+          archivo.variable,
           'min-h-dvh font-sans antialiased',
         )}
       >

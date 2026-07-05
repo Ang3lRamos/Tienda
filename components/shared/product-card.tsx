@@ -3,12 +3,11 @@ import Image from 'next/image';
 import { ImageIcon } from 'lucide-react';
 import { Price } from './price';
 import { StockBadge } from './stock-badge';
-import { Rating } from './rating';
 import { FavoriteButton } from './favorite-button';
 import { cn, discountPercent } from '@/lib/utils';
 import type { ProductSummary } from '@/types/product';
 
-/** Tarjeta de producto para listados y carruseles. */
+/** Tarjeta de producto brutalista para listados y carruseles. */
 export function ProductCard({
   product,
   className,
@@ -20,10 +19,11 @@ export function ProductCard({
 }) {
   const percent = discountPercent(product.price, product.compareAtPrice);
   const href = `/producto/${product.slug}`;
+  const soldOut = product.stockStatus === 'agotado';
 
   return (
     <article className={cn('group relative flex flex-col', className)}>
-      <div className="relative aspect-4/5 overflow-hidden rounded-lg bg-muted">
+      <div className="relative aspect-3/4 overflow-hidden bg-muted">
         <Link href={href} aria-label={product.name}>
           {product.imageUrl ? (
             <Image
@@ -32,7 +32,10 @@ export function ProductCard({
               fill
               priority={priority}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              className={cn(
+                'object-cover transition-transform duration-700 ease-out group-hover:scale-105',
+                soldOut && 'opacity-60 grayscale',
+              )}
             />
           ) : (
             <div className="grid h-full place-items-center text-muted-foreground">
@@ -41,11 +44,11 @@ export function ProductCard({
           )}
         </Link>
 
-        {/* Overlays */}
-        <div className="pointer-events-none absolute inset-x-3 top-3 flex items-start justify-between">
+        {/* Tags */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between p-3">
           <div className="flex flex-col gap-1.5">
             {percent > 0 && (
-              <span className="pointer-events-auto rounded-full bg-destructive px-2 py-0.5 text-xs font-semibold text-destructive-foreground">
+              <span className="bg-foreground px-2 py-1 text-[0.65rem] font-bold tracking-[0.12em] text-background">
                 −{percent}%
               </span>
             )}
@@ -59,20 +62,26 @@ export function ProductCard({
             <FavoriteButton productId={product.id} />
           </div>
         </div>
+
+        {/* Barra de acción (hover) */}
+        <Link
+          href={href}
+          className="absolute inset-x-0 bottom-0 translate-y-full bg-foreground py-3 text-center text-[0.7rem] font-bold tracking-[0.2em] text-background uppercase transition-transform duration-300 ease-out group-hover:translate-y-0"
+        >
+          Ver producto
+        </Link>
       </div>
 
       <div className="mt-3 flex flex-col gap-1">
         {product.brandName && (
-          <span className="text-xs tracking-wide text-muted-foreground uppercase">
-            {product.brandName}
-          </span>
+          <span className="kicker text-muted-foreground">{product.brandName}</span>
         )}
-        <Link href={href} className="font-medium hover:underline">
+        <Link
+          href={href}
+          className="font-display text-sm font-bold tracking-tight uppercase decoration-1 underline-offset-4 hover:underline"
+        >
           {product.name}
         </Link>
-        {product.ratingCount > 0 && (
-          <Rating value={product.ratingAvg} count={product.ratingCount} />
-        )}
         <Price
           value={product.price}
           compareAt={product.compareAtPrice}

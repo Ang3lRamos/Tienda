@@ -22,7 +22,7 @@ export function Rating({ value, count, className, size = 14 }: RatingProps) {
                 className="absolute overflow-hidden"
                 style={{ width: `${fill * 100}%`, height: size }}
               >
-                <Star size={size} className="text-warning fill-warning" />
+                <Star size={size} className="fill-foreground text-foreground" />
               </span>
             </span>
           );
