@@ -16,6 +16,10 @@ shadcn/ui + Supabase (Postgres/Auth/Storage/RLS) + OpenRouter (chatbot IA).
 - **Nunca** expongas la `service_role` key al cliente. La seguridad real es
   **RLS**; el middleware es sólo la primera barrera.
 - Tipos de BD en `types/database.types.ts` (regenerar con `npm run db:types`).
+- **Consultas Supabase → módulos `.ts` con tipo de retorno EXPLÍCITO** (p.ej.
+  `features/*/queries.ts` con `): Promise<T | null>` + `as T`). El parser de
+  `select()` es muy recursivo y en archivos `.tsx` TypeScript hace *bailout* a
+  `never`; fijar el retorno lo evita. Para igualdad usa `.match({ col: val })`.
 - Esquemas Zod en `schemas/`, tipos en `types/`, lógica de dominio en
   `services/`, stores Zustand en `store/`.
 

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import Link from 'next/link';
-import { Heart, Menu, Search, ShoppingBag, User } from 'lucide-react';
+import { Heart, LogOut, Menu, Search, ShoppingBag, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -11,15 +11,25 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from '@/components/shared/theme-toggle';
 import { Marquee } from '@/components/shared/marquee';
 import { SearchBar } from './search-bar';
+import { signOutAction } from '@/features/auth/actions';
 import { siteConfig, mainNav } from '@/config/site';
 import { cn } from '@/lib/utils';
 
-export function Navbar() {
+export function Navbar({ isAuthed = false }: { isAuthed?: boolean }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [, startTransition] = useTransition();
 
   return (
     <header className="sticky top-0 z-50 bg-background">
@@ -108,11 +118,40 @@ export function Navbar() {
                 <Heart className="size-5" />
               </Link>
             </Button>
-            <Button variant="ghost" size="icon" asChild aria-label="Mi cuenta">
-              <Link href="/account">
-                <User className="size-5" />
-              </Link>
-            </Button>
+            {isAuthed ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" aria-label="Mi cuenta">
+                    <User className="size-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 border-2 border-foreground">
+                  <DropdownMenuLabel>Mi cuenta</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/account">Perfil</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/account/pedidos">Pedidos</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/account/favoritos">Favoritos</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onSelect={() => startTransition(() => void signOutAction())}
+                  >
+                    <LogOut className="size-4" /> Cerrar sesión
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button variant="ghost" size="icon" asChild aria-label="Iniciar sesión">
+                <Link href="/login">
+                  <User className="size-5" />
+                </Link>
+              </Button>
+            )}
             <Button variant="ghost" size="icon" asChild aria-label="Carrito">
               <Link href="/carrito" className="relative">
                 <ShoppingBag className="size-5" />

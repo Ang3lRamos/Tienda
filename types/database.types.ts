@@ -25,26 +25,29 @@ export type NotificationType = 'order' | 'promotion' | 'stock' | 'system' | 'acc
 export type StockStatus = 'disponible' | 'ultimas_unidades' | 'agotado';
 
 // Helper para definir una tabla con Row/Insert/Update.
+// `Relationships: []` es necesario para que el parser de select de supabase-js
+// infiera correctamente los resultados (lo incluye `supabase gen types`).
 type Table<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
   Row: Row;
   Insert: Insert;
   Update: Update;
+  Relationships: [];
 };
 
 // --- Rows ------------------------------------------------------------
-export interface RoleRow {
+export type RoleRow = {
   id: string;
   name: string;
   description: string | null;
   created_at: string;
 }
-export interface PermissionRow {
+export type PermissionRow = {
   id: string;
   code: string;
   description: string | null;
   created_at: string;
 }
-export interface ProfileRow {
+export type ProfileRow = {
   id: string;
   role_id: string | null;
   email: string | null;
@@ -55,7 +58,7 @@ export interface ProfileRow {
   created_at: string;
   updated_at: string;
 }
-export interface AddressRow {
+export type AddressRow = {
   id: string;
   user_id: string;
   label: string | null;
@@ -70,7 +73,7 @@ export interface AddressRow {
   is_default: boolean;
   created_at: string;
 }
-export interface CategoryRow {
+export type CategoryRow = {
   id: string;
   name: string;
   slug: string;
@@ -82,7 +85,7 @@ export interface CategoryRow {
   created_at: string;
   updated_at: string;
 }
-export interface BrandRow {
+export type BrandRow = {
   id: string;
   name: string;
   slug: string;
@@ -92,7 +95,7 @@ export interface BrandRow {
   created_at: string;
   updated_at: string;
 }
-export interface ProductRow {
+export type ProductRow = {
   id: string;
   name: string;
   slug: string;
@@ -114,7 +117,7 @@ export interface ProductRow {
   created_at: string;
   updated_at: string;
 }
-export interface ProductVariantRow {
+export type ProductVariantRow = {
   id: string;
   product_id: string;
   sku: string;
@@ -128,7 +131,7 @@ export interface ProductVariantRow {
   created_at: string;
   updated_at: string;
 }
-export interface ProductImageRow {
+export type ProductImageRow = {
   id: string;
   product_id: string;
   variant_id: string | null;
@@ -138,7 +141,7 @@ export interface ProductImageRow {
   is_primary: boolean;
   created_at: string;
 }
-export interface InventoryRow {
+export type InventoryRow = {
   id: string;
   variant_id: string;
   quantity: number;
@@ -146,7 +149,7 @@ export interface InventoryRow {
   low_stock_threshold: number;
   updated_at: string;
 }
-export interface InventoryMovementRow {
+export type InventoryMovementRow = {
   id: string;
   variant_id: string;
   type: MovementType;
@@ -158,7 +161,7 @@ export interface InventoryMovementRow {
   created_by: string | null;
   created_at: string;
 }
-export interface PromotionRow {
+export type PromotionRow = {
   id: string;
   name: string;
   description: string | null;
@@ -173,7 +176,7 @@ export interface PromotionRow {
   created_at: string;
   updated_at: string;
 }
-export interface CouponRow {
+export type CouponRow = {
   id: string;
   code: string;
   description: string | null;
@@ -188,33 +191,33 @@ export interface CouponRow {
   is_active: boolean;
   created_at: string;
 }
-export interface CartRow {
+export type CartRow = {
   id: string;
   user_id: string | null;
   session_id: string | null;
   created_at: string;
   updated_at: string;
 }
-export interface CartItemRow {
+export type CartItemRow = {
   id: string;
   cart_id: string;
   variant_id: string;
   quantity: number;
   added_at: string;
 }
-export interface WishlistRow {
+export type WishlistRow = {
   id: string;
   user_id: string;
   product_id: string;
   created_at: string;
 }
-export interface RecentlyViewedRow {
+export type RecentlyViewedRow = {
   id: string;
   user_id: string;
   product_id: string;
   viewed_at: string;
 }
-export interface OrderRow {
+export type OrderRow = {
   id: string;
   user_id: string | null;
   order_number: string;
@@ -233,7 +236,7 @@ export interface OrderRow {
   created_at: string;
   updated_at: string;
 }
-export interface OrderItemRow {
+export type OrderItemRow = {
   id: string;
   order_id: string;
   variant_id: string | null;
@@ -245,7 +248,7 @@ export interface OrderItemRow {
   line_total: number;
   created_at: string;
 }
-export interface ReviewRow {
+export type ReviewRow = {
   id: string;
   product_id: string;
   user_id: string;
@@ -257,7 +260,7 @@ export interface ReviewRow {
   created_at: string;
   updated_at: string;
 }
-export interface ChatbotConversationRow {
+export type ChatbotConversationRow = {
   id: string;
   user_id: string | null;
   session_id: string | null;
@@ -265,7 +268,7 @@ export interface ChatbotConversationRow {
   created_at: string;
   updated_at: string;
 }
-export interface ChatbotMessageRow {
+export type ChatbotMessageRow = {
   id: string;
   conversation_id: string;
   role: ChatRole;
@@ -275,7 +278,7 @@ export interface ChatbotMessageRow {
   tokens: number | null;
   created_at: string;
 }
-export interface NotificationRow {
+export type NotificationRow = {
   id: string;
   user_id: string;
   type: NotificationType;
@@ -285,7 +288,7 @@ export interface NotificationRow {
   is_read: boolean;
   created_at: string;
 }
-export interface ActivityLogRow {
+export type ActivityLogRow = {
   id: string;
   actor_id: string | null;
   action: string;
@@ -295,7 +298,7 @@ export interface ActivityLogRow {
   ip_address: string | null;
   created_at: string;
 }
-export interface NewsletterSubscriberRow {
+export type NewsletterSubscriberRow = {
   id: string;
   email: string;
   is_active: boolean;
@@ -303,14 +306,14 @@ export interface NewsletterSubscriberRow {
 }
 
 // Vista: producto + stock agregado
-export interface ProductWithStockRow extends ProductRow {
+export type ProductWithStockRow = ProductRow & {
   total_stock: number;
   available_stock: number;
   stock_status: StockStatus;
 }
 
 // --- Database --------------------------------------------------------
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       roles: Table<RoleRow>;
@@ -341,7 +344,7 @@ export interface Database {
       newsletter_subscribers: Table<NewsletterSubscriberRow>;
     };
     Views: {
-      products_with_stock: { Row: ProductWithStockRow };
+      products_with_stock: { Row: ProductWithStockRow; Relationships: [] };
     };
     Functions: {
       is_admin: { Args: Record<string, never>; Returns: boolean };
@@ -369,5 +372,6 @@ export interface Database {
       chat_role: ChatRole;
       notification_type: NotificationType;
     };
+    CompositeTypes: Record<string, never>;
   };
 }

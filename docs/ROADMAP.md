@@ -19,10 +19,12 @@ Cada módulo se entrega **completo y funcional** antes de avanzar. Estado:
 - ✅ Navbar fija + buscador + menú móvil + Footer + newsletter
 - ✅ Componentes compartidos: `ProductCard`, `Price`, `StockBadge`, `Rating`, `FavoriteButton`
 
-## Fase 2 — Autenticación ⬜
-- Login, registro, recuperar contraseña, callback OAuth
-- Server Actions + validación Zod + manejo de errores
-- Página de cuenta (perfil, direcciones, pedidos, favoritos)
+## Fase 2 — Autenticación ✅
+- ✅ Login, registro, recuperar y actualizar contraseña, callback OAuth
+- ✅ Server Actions + validación Zod (cliente y servidor) + manejo de errores
+- ✅ Google OAuth cableado (opcional, requiere activar proveedor en Supabase)
+- ✅ Área de cuenta (perfil + navegación) protegida; navbar consciente de sesión
+- ✅ Patrón de consultas `.ts` con tipo explícito (evita bailout a `never` en TSX)
 
 ## Fase 3 — Catálogo y producto ⬜
 - Listado con filtros (categoría, marca, precio, color, talla, disponibilidad,
