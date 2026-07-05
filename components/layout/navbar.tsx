@@ -23,6 +23,10 @@ import { ThemeToggle } from '@/components/shared/theme-toggle';
 import { Marquee } from '@/components/shared/marquee';
 import { SearchBar } from './search-bar';
 import { signOutAction } from '@/features/auth/actions';
+import { useCartStore } from '@/store/cart';
+import { useWishlistStore } from '@/store/wishlist';
+import { useUIStore } from '@/store/ui';
+import { useMounted } from '@/hooks/use-mounted';
 import { siteConfig, mainNav } from '@/config/site';
 import { cn } from '@/lib/utils';
 
@@ -30,6 +34,13 @@ export function Navbar({ isAuthed = false }: { isAuthed?: boolean }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [, startTransition] = useTransition();
+
+  const mounted = useMounted();
+  const openCart = useUIStore((s) => s.openCart);
+  const cartItems = useCartStore((s) => s.items);
+  const wishlistItems = useWishlistStore((s) => s.items);
+  const cartCount = mounted ? cartItems.reduce((sum, i) => sum + i.quantity, 0) : 0;
+  const wishCount = mounted ? wishlistItems.length : 0;
 
   return (
     <header className="sticky top-0 z-50 bg-background">
@@ -113,9 +124,14 @@ export function Navbar({ isAuthed = false }: { isAuthed?: boolean }) {
               <Search className="size-5" />
             </Button>
             <ThemeToggle />
-            <Button variant="ghost" size="icon" asChild aria-label="Favoritos">
+            <Button variant="ghost" size="icon" asChild aria-label="Favoritos" className="relative">
               <Link href="/favoritos">
                 <Heart className="size-5" />
+                {wishCount > 0 && (
+                  <span className="absolute top-1 right-1 grid size-4 place-items-center bg-foreground text-[0.6rem] leading-none font-bold text-background">
+                    {wishCount}
+                  </span>
+                )}
               </Link>
             </Button>
             {isAuthed ? (
@@ -152,10 +168,19 @@ export function Navbar({ isAuthed = false }: { isAuthed?: boolean }) {
                 </Link>
               </Button>
             )}
-            <Button variant="ghost" size="icon" asChild aria-label="Carrito">
-              <Link href="/carrito" className="relative">
-                <ShoppingBag className="size-5" />
-              </Link>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Carrito"
+              className="relative"
+              onClick={openCart}
+            >
+              <ShoppingBag className="size-5" />
+              {cartCount > 0 && (
+                <span className="absolute top-1 right-1 grid size-4 place-items-center bg-foreground text-[0.6rem] leading-none font-bold text-background">
+                  {cartCount}
+                </span>
+              )}
             </Button>
           </div>
         </div>

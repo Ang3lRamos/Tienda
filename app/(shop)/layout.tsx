@@ -1,5 +1,6 @@
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
+import { CartDrawer } from '@/components/layout/cart-drawer';
 import { createServerSupabase } from '@/lib/supabase/server';
 
 /** Layout de la tienda pública: navbar fija + contenido + footer. */
@@ -18,6 +19,7 @@ export default async function ShopLayout({
       <Navbar isAuthed={!!user} />
       <main className="flex-1">{children}</main>
       <Footer />
+      <CartDrawer />
     </div>
   );
 }

@@ -36,10 +36,14 @@ Cada módulo se entrega **completo y funcional** antes de avanzar. Estado:
 - ✅ Página de categorías; landing conectada a datos reales de Supabase
 - ✅ Verificado end-to-end contra la BD real (filtros, búsqueda, 404)
 
-## Fase 4 — Carrito, favoritos y extras ⬜
-- Carrito (Zustand + persistencia + sincronización con BD al iniciar sesión)
-- Wishlist / favoritos, comparador, vistos recientemente
-- Newsletter
+## Fase 4 — Carrito, favoritos y extras ✅
+- ✅ Carrito (Zustand + persistencia local): drawer global + página /carrito,
+  cantidades, totales, badge en navbar; botones de producto activados
+- ✅ Wishlist/favoritos reales (store persistido) + /favoritos + cuenta
+- ✅ Vistos recientemente (store) en la página de producto
+- ✅ Newsletter funcional (insert en `newsletter_subscribers` vía Server Action)
+- ⬜ Sincronización carrito/wishlist con Supabase (se hará junto al checkout)
+- ⬜ Comparador de productos (pendiente)
 
 ## Fase 5 — Landing page ⬜
 - Hero, banner promocional, categorías, nueva colección, destacados,

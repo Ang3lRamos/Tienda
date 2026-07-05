@@ -8,9 +8,12 @@ import {
 } from '@/features/catalog/queries';
 import { ProductGallery } from '@/features/catalog/components/product-gallery';
 import { ProductPurchase } from '@/features/catalog/components/product-purchase';
+import { TrackRecentlyViewed } from '@/features/catalog/components/track-recently-viewed';
+import { RecentlyViewed } from '@/features/catalog/components/recently-viewed';
 import { ProductCard } from '@/components/shared/product-card';
 import { Rating } from '@/components/shared/rating';
 import { Separator } from '@/components/ui/separator';
+import type { ProductSummary } from '@/types/product';
 
 type Params = { slug: string };
 
@@ -43,8 +46,28 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
     getProductReviews(product.id),
   ]);
 
+  const summary: ProductSummary = {
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    price: product.price,
+    compareAtPrice: product.compareAtPrice,
+    imageUrl: product.images[0]?.url ?? null,
+    imageAlt: product.images[0]?.alt ?? null,
+    categoryName: product.categoryName,
+    brandName: product.brandName,
+    gender: product.gender,
+    isFeatured: false,
+    ratingAvg: product.ratingAvg,
+    ratingCount: product.ratingCount,
+    stockStatus: product.stockStatus,
+    availableColors: product.availableColors.map((c) => c.name),
+    availableSizes: product.availableSizes,
+  };
+
   return (
     <div className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6">
+      <TrackRecentlyViewed product={summary} />
       {/* Breadcrumb */}
       <nav className="mb-6 flex flex-wrap items-center gap-2 text-xs tracking-wide text-muted-foreground uppercase">
         <Link href="/" className="hover:text-foreground">Inicio</Link>
@@ -161,6 +184,8 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
           </div>
         </section>
       )}
+
+      <RecentlyViewed currentId={product.id} />
     </div>
   );
 }

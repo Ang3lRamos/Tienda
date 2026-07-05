@@ -8,9 +8,33 @@ import { Price } from '@/components/shared/price';
 import { StockBadge } from '@/components/shared/stock-badge';
 import { FavoriteButton } from '@/components/shared/favorite-button';
 import { cn } from '@/lib/utils';
-import type { ProductDetail } from '@/types/product';
+import { useCartStore } from '@/store/cart';
+import { useUIStore } from '@/store/ui';
+import type { ProductDetail, ProductSummary } from '@/types/product';
 
 export function ProductPurchase({ product }: { product: ProductDetail }) {
+  const addItem = useCartStore((s) => s.add);
+  const openCart = useUIStore((s) => s.openCart);
+
+  const summary: ProductSummary = {
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    price: product.price,
+    compareAtPrice: product.compareAtPrice,
+    imageUrl: product.images[0]?.url ?? null,
+    imageAlt: product.images[0]?.alt ?? null,
+    categoryName: product.categoryName,
+    brandName: product.brandName,
+    gender: product.gender,
+    isFeatured: false,
+    ratingAvg: product.ratingAvg,
+    ratingCount: product.ratingCount,
+    stockStatus: product.stockStatus,
+    availableColors: product.availableColors.map((c) => c.name),
+    availableSizes: product.availableSizes,
+  };
+
   const hasColors = product.availableColors.length > 0;
   const hasSizes = product.availableSizes.length > 0;
 
@@ -41,7 +65,21 @@ export function ProductPurchase({ product }: { product: ProductDetail }) {
       return;
     }
     if (soldOut) return;
-    // TODO(Fase 4): conectar al store del carrito + Supabase.
+    addItem(
+      {
+        productId: product.id,
+        variantId: variant?.id ?? null,
+        name: product.name,
+        slug: product.slug,
+        image: product.images[0]?.url ?? null,
+        color: variant?.color ?? color,
+        size: variant?.size ?? size,
+        unitPrice: unitPrice,
+        maxStock: variant?.available ?? product.totalAvailable,
+      },
+      qty,
+    );
+    openCart();
     toast.success('Añadido al carrito', {
       description: `${product.name}${size ? ` · Talla ${size}` : ''}${color ? ` · ${color}` : ''} × ${qty}`,
     });
@@ -142,7 +180,7 @@ export function ProductPurchase({ product }: { product: ProductDetail }) {
             {soldOut ? 'Agotado' : 'Añadir al carrito'}
           </Button>
           <div className="grid size-14 shrink-0 place-items-center border-2 border-foreground">
-            <FavoriteButton productId={product.id} className="bg-transparent shadow-none" />
+            <FavoriteButton product={summary} className="bg-transparent shadow-none" />
           </div>
         </div>
         <Button size="lg" variant="outline" onClick={addToCart} disabled={soldOut}>

@@ -1,17 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { subscribeNewsletter } from '@/features/newsletter/actions';
 
-/**
- * Formulario de newsletter. En la Fase 4 hará un insert en
- * `newsletter_subscribers` vía Server Action; por ahora valida y avisa.
- */
+/** Formulario de newsletter: inserta en `newsletter_subscribers` (Server Action). */
 export function NewsletterForm() {
   const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, startTransition] = useTransition();
 
   return (
     <form
@@ -21,12 +19,15 @@ export function NewsletterForm() {
           toast.error('Introduce un correo válido');
           return;
         }
-        setLoading(true);
-        setTimeout(() => {
-          setLoading(false);
-          setEmail('');
-          toast.success('¡Gracias por suscribirte!');
-        }, 500);
+        startTransition(async () => {
+          const res = await subscribeNewsletter(email);
+          if (res.error) {
+            toast.error(res.error);
+          } else {
+            setEmail('');
+            toast.success('¡Gracias por suscribirte!');
+          }
+        });
       }}
       className="flex gap-2"
     >

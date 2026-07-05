@@ -59,7 +59,7 @@ export function ProductCard({
             )}
           </div>
           <div className="pointer-events-auto opacity-0 transition-opacity group-hover:opacity-100">
-            <FavoriteButton productId={product.id} />
+            <FavoriteButton product={product} />
           </div>
         </div>
 

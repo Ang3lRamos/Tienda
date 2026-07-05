@@ -1,32 +1,33 @@
 'use client';
 
-import { useState } from 'react';
 import { Heart } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useWishlistStore } from '@/store/wishlist';
+import { useMounted } from '@/hooks/use-mounted';
+import type { ProductSummary } from '@/types/product';
 
-/**
- * Botón de favoritos. En la Fase 4 se conecta al store de wishlist + Supabase;
- * por ahora alterna el estado visual y avisa.
- */
+/** Botón de favoritos conectado al store de wishlist (persistido). */
 export function FavoriteButton({
-  productId,
+  product,
   className,
 }: {
-  productId: string;
+  product: ProductSummary;
   className?: string;
 }) {
-  const [active, setActive] = useState(false);
+  const mounted = useMounted();
+  const items = useWishlistStore((s) => s.items);
+  const toggle = useWishlistStore((s) => s.toggle);
+  const active = mounted && items.some((i) => i.id === product.id);
 
   return (
     <button
       type="button"
       aria-label={active ? 'Quitar de favoritos' : 'Añadir a favoritos'}
       aria-pressed={active}
-      data-product-id={productId}
       onClick={(e) => {
         e.preventDefault();
-        setActive((v) => !v);
+        toggle(product);
         toast.success(active ? 'Quitado de favoritos' : 'Añadido a favoritos');
       }}
       className={cn(
