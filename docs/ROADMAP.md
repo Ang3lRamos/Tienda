@@ -11,13 +11,13 @@ Cada módulo se entrega **completo y funcional** antes de avanzar. Estado:
 - ✅ Clientes Supabase (browser/server/admin) + middleware de sesión
 - ✅ Validación de entorno (Zod) + `.env.example`
 - ✅ Documentación (arquitectura, auth, chatbot, BD)
-- 🔨 Sistema de diseño base (tokens, tema claro/oscuro, primitivos UI)
+- ✅ Sistema de diseño base (tokens, tema claro/oscuro, primitivos UI)
 
-## Fase 1 — Design system y layout de tienda ⬜
-- Tokens de color/tipografía, modo oscuro (`next-themes`)
-- Primitivos shadcn (button, input, dialog, sheet, dropdown, select…)
-- Navbar fija + buscador + Footer + providers (Query, Theme, Toaster)
-- Componentes compartidos: `ProductCard`, `Price`, `StockBadge`, `Rating`
+## Fase 1 — Design system y layout de tienda ✅
+- ✅ Tokens de color/tipografía, modo oscuro (`next-themes`)
+- ✅ Primitivos shadcn (button, input, badge, skeleton, sheet, separator, dropdown)
+- ✅ Navbar fija + buscador + menú móvil + Footer + newsletter
+- ✅ Componentes compartidos: `ProductCard`, `Price`, `StockBadge`, `Rating`, `FavoriteButton`
 
 ## Fase 2 — Autenticación ⬜
 - Login, registro, recuperar contraseña, callback OAuth
