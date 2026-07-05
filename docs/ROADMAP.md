@@ -26,12 +26,15 @@ Cada módulo se entrega **completo y funcional** antes de avanzar. Estado:
 - ✅ Área de cuenta (perfil + navegación) protegida; navbar consciente de sesión
 - ✅ Patrón de consultas `.ts` con tipo explícito (evita bailout a `never` en TSX)
 
-## Fase 3 — Catálogo y producto ⬜
-- Listado con filtros (categoría, marca, precio, color, talla, disponibilidad,
-  ofertas, novedades, más vendidos) + orden + infinite scroll/paginación
-- Buscador inteligente (full-text `search_vector` + trigram)
-- Página de producto: galería + zoom, variantes, stock, relacionados, reseñas
-- Acciones: añadir al carrito, comprar ahora, favoritos, consultar al chatbot
+## Fase 3 — Catálogo y producto ✅
+- ✅ Listado con filtros (categoría, marca, género, precio, color, talla,
+  ofertas) + orden (nuevos/precio/vendidos/destacados) + paginación
+- ✅ Buscador inteligente (full-text `search_vector`, config español)
+- ✅ Página de producto: galería + zoom, variantes (color/talla + stock),
+  relacionados, reseñas
+- ✅ Acciones: añadir al carrito / comprar ahora (stub → Fase 4), favoritos
+- ✅ Página de categorías; landing conectada a datos reales de Supabase
+- ✅ Verificado end-to-end contra la BD real (filtros, búsqueda, 404)
 
 ## Fase 4 — Carrito, favoritos y extras ⬜
 - Carrito (Zustand + persistencia + sincronización con BD al iniciar sesión)
