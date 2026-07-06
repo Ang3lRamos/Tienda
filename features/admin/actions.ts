@@ -279,3 +279,116 @@ export async function togglePromotion(id: string, isActive: boolean): Promise<Re
   revalidatePath('/admin/promociones');
   return { success: true };
 }
+
+const isoOrNull = (v?: string) => (v ? new Date(v).toISOString() : null);
+
+const promotionSchema = z.object({
+  id: z.string().uuid().optional(),
+  name: z.string().min(2, 'Nombre requerido'),
+  description: z.string().optional(),
+  type: z.enum(['percentage', 'fixed']),
+  value: z.number().nonnegative(),
+  scope: z.enum(['all', 'category', 'brand', 'product']).default('all'),
+  targetId: z.string().uuid().nullable().optional(),
+  bannerImageUrl: z.string().optional(),
+  startsAt: z.string().optional(),
+  endsAt: z.string().optional(),
+  isActive: z.boolean().default(true),
+});
+
+export async function upsertPromotion(input: unknown): Promise<Result> {
+  await assertStaff();
+  const parsed = promotionSchema.safeParse(input);
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos' };
+  const p = parsed.data;
+  const admin = createAdminSupabase();
+  const payload = {
+    name: p.name,
+    description: p.description || null,
+    type: p.type,
+    value: p.value,
+    scope: p.scope,
+    target_id: p.scope === 'all' ? null : p.targetId || null,
+    banner_image_url: p.bannerImageUrl || null,
+    starts_at: isoOrNull(p.startsAt),
+    ends_at: isoOrNull(p.endsAt),
+    is_active: p.isActive,
+  };
+  const query = p.id
+    ? admin.from('promotions').update(payload as never).eq('id', p.id)
+    : admin.from('promotions').insert(payload as never);
+  const { error } = await query;
+  if (error) return { error: 'No fue posible guardar la promoción.' };
+  revalidatePath('/admin/promociones');
+  revalidatePath('/');
+  return { success: true };
+}
+
+export async function deletePromotion(id: string): Promise<Result> {
+  await assertStaff();
+  const admin = createAdminSupabase();
+  const { error } = await admin.from('promotions').delete().eq('id', id);
+  if (error) return { error: 'No fue posible eliminar la promoción.' };
+  revalidatePath('/admin/promociones');
+  return { success: true };
+}
+
+/* ------------------------------- Cupones ------------------------------ */
+const couponSchema = z.object({
+  id: z.string().uuid().optional(),
+  code: z.string().min(3, 'Código de al menos 3 caracteres'),
+  description: z.string().optional(),
+  type: z.enum(['percentage', 'fixed']),
+  value: z.number().nonnegative(),
+  minPurchase: z.number().nonnegative().default(0),
+  maxUses: z.number().int().positive().nullable().optional(),
+  perUserLimit: z.number().int().positive().default(1),
+  startsAt: z.string().optional(),
+  endsAt: z.string().optional(),
+  isActive: z.boolean().default(true),
+});
+
+export async function upsertCoupon(input: unknown): Promise<Result> {
+  await assertStaff();
+  const parsed = couponSchema.safeParse(input);
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos' };
+  const c = parsed.data;
+  const admin = createAdminSupabase();
+  const payload = {
+    code: c.code.trim().toUpperCase(),
+    description: c.description || null,
+    type: c.type,
+    value: c.value,
+    min_purchase: c.minPurchase,
+    max_uses: c.maxUses ?? null,
+    per_user_limit: c.perUserLimit,
+    starts_at: isoOrNull(c.startsAt),
+    ends_at: isoOrNull(c.endsAt),
+    is_active: c.isActive,
+  };
+  const query = c.id
+    ? admin.from('coupons').update(payload as never).eq('id', c.id)
+    : admin.from('coupons').insert(payload as never);
+  const { error } = await query;
+  if (error) return { error: 'No fue posible guardar el cupón. ¿Código duplicado?' };
+  revalidatePath('/admin/promociones');
+  return { success: true };
+}
+
+export async function deleteCoupon(id: string): Promise<Result> {
+  await assertStaff();
+  const admin = createAdminSupabase();
+  const { error } = await admin.from('coupons').delete().eq('id', id);
+  if (error) return { error: 'No fue posible eliminar el cupón.' };
+  revalidatePath('/admin/promociones');
+  return { success: true };
+}
+
+export async function toggleCoupon(id: string, isActive: boolean): Promise<Result> {
+  await assertStaff();
+  const admin = createAdminSupabase();
+  const { error } = await admin.from('coupons').update({ is_active: isActive } as never).eq('id', id);
+  if (error) return { error: 'No fue posible actualizar el cupón.' };
+  revalidatePath('/admin/promociones');
+  return { success: true };
+}

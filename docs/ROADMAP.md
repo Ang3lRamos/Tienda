@@ -101,8 +101,10 @@ Cada módulo se entrega **completo y funcional** antes de avanzar. Estado:
   `/api/admin/upload-image` con auth admin; botón "Subir" en el formulario) —
   verificado E2E (archivo sube al bucket y queda en el producto)
 
+- ✅ Creación/edición de promociones y cupones desde el panel (CRUD completo +
+  activar/desactivar) — verificado E2E; los cupones aplican en el checkout
+
 Pendientes menores (mejoras futuras, no bloquean producción):
-- Creación de promociones/cupones desde el panel
 - Sincronización carrito/wishlist con Supabase (hoy local)
 - Integración real de pasarela de pagos (estructura ya lista)
 - Comparador de productos

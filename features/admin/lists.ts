@@ -266,33 +266,99 @@ export async function listInventory(): Promise<InventoryRowView[]> {
 export interface PromotionRowView {
   id: string;
   name: string;
+  description: string | null;
   type: string;
   value: number;
-  isActive: boolean;
+  scope: string;
+  targetId: string | null;
+  bannerImageUrl: string | null;
+  startsAt: string | null;
   endsAt: string | null;
+  isActive: boolean;
 }
 export async function listPromotions(): Promise<PromotionRowView[]> {
   const supabase = await createServerSupabase();
   const { data } = await supabase
     .from('promotions')
-    .select('id, name, type, value, is_active, ends_at')
+    .select('id, name, description, type, value, scope, target_id, banner_image_url, starts_at, ends_at, is_active')
     .order('created_at', { ascending: false });
   const rows =
     (data as unknown as {
       id: string;
       name: string;
+      description: string | null;
       type: string;
       value: number;
-      is_active: boolean;
+      scope: string;
+      target_id: string | null;
+      banner_image_url: string | null;
+      starts_at: string | null;
       ends_at: string | null;
+      is_active: boolean;
     }[]) ?? [];
   return rows.map((p) => ({
     id: p.id,
     name: p.name,
+    description: p.description,
     type: p.type,
     value: p.value,
-    isActive: p.is_active,
+    scope: p.scope,
+    targetId: p.target_id,
+    bannerImageUrl: p.banner_image_url,
+    startsAt: p.starts_at,
     endsAt: p.ends_at,
+    isActive: p.is_active,
+  }));
+}
+
+export interface CouponRowView {
+  id: string;
+  code: string;
+  description: string | null;
+  type: string;
+  value: number;
+  minPurchase: number;
+  maxUses: number | null;
+  usedCount: number;
+  perUserLimit: number;
+  startsAt: string | null;
+  endsAt: string | null;
+  isActive: boolean;
+}
+export async function listCoupons(): Promise<CouponRowView[]> {
+  const supabase = await createServerSupabase();
+  const { data } = await supabase
+    .from('coupons')
+    .select('id, code, description, type, value, min_purchase, max_uses, used_count, per_user_limit, starts_at, ends_at, is_active')
+    .order('created_at', { ascending: false });
+  const rows =
+    (data as unknown as {
+      id: string;
+      code: string;
+      description: string | null;
+      type: string;
+      value: number;
+      min_purchase: number;
+      max_uses: number | null;
+      used_count: number;
+      per_user_limit: number;
+      starts_at: string | null;
+      ends_at: string | null;
+      is_active: boolean;
+    }[]) ?? [];
+  return rows.map((c) => ({
+    id: c.id,
+    code: c.code,
+    description: c.description,
+    type: c.type,
+    value: c.value,
+    minPurchase: c.min_purchase,
+    maxUses: c.max_uses,
+    usedCount: c.used_count,
+    perUserLimit: c.per_user_limit,
+    startsAt: c.starts_at,
+    endsAt: c.ends_at,
+    isActive: c.is_active,
   }));
 }
 
