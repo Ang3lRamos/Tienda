@@ -1,6 +1,7 @@
 import { Navbar } from '@/components/layout/navbar';
 import { ConditionalFooter } from '@/components/layout/conditional-footer';
 import { CartDrawer } from '@/components/layout/cart-drawer';
+import { AccountSync } from '@/features/sync/components/account-sync';
 import { ChatWidget } from '@/features/chatbot/components/chat-widget';
 import { createServerSupabase } from '@/lib/supabase/server';
 
@@ -30,6 +31,7 @@ export default async function ShopLayout({
       <ConditionalFooter />
       <CartDrawer />
       <ChatWidget />
+      <AccountSync isAuthed={!!user} />
     </div>
   );
 }

@@ -274,6 +274,19 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
   };
 }
 
+/** Resúmenes de producto por ids (para reconstruir la wishlist desde la BD). */
+export async function getProductSummariesByIds(ids: string[]): Promise<ProductSummary[]> {
+  if (ids.length === 0) return [];
+  const supabase = await createServerSupabase();
+  const { data } = await supabase
+    .from('products')
+    .select(PRODUCT_SELECT)
+    .in('id', ids)
+    .eq('status', 'published');
+  const rows = (data as unknown as RawProduct[]) ?? [];
+  return rows.map(toSummary);
+}
+
 /* ---------------------------- categorías ----------------------------- */
 export async function getCategories(): Promise<
   { name: string; slug: string; imageUrl: string | null; description: string | null }[]

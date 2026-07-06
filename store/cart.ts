@@ -23,6 +23,7 @@ interface CartState {
   updateQty: (key: string, qty: number) => void;
   remove: (key: string) => void;
   clear: () => void;
+  setItems: (items: CartItem[]) => void;
 }
 
 function keyOf(item: { variantId: string | null; productId: string }) {
@@ -56,6 +57,7 @@ export const useCartStore = create<CartState>()(
         })),
       remove: (key) => set((state) => ({ items: state.items.filter((i) => i.key !== key) })),
       clear: () => set({ items: [] }),
+      setItems: (items) => set({ items }),
     }),
     { name: 'atelier-cart', storage: createJSONStorage(() => localStorage) },
   ),

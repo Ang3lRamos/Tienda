@@ -13,6 +13,7 @@ interface WishlistState {
   remove: (productId: string) => void;
   has: (productId: string) => boolean;
   clear: () => void;
+  setItems: (items: WishlistItem[]) => void;
 }
 
 export const useWishlistStore = create<WishlistState>()(
@@ -32,6 +33,7 @@ export const useWishlistStore = create<WishlistState>()(
         set((state) => ({ items: state.items.filter((i) => i.id !== productId) })),
       has: (productId) => get().items.some((i) => i.id === productId),
       clear: () => set({ items: [] }),
+      setItems: (items) => set({ items }),
     }),
     { name: 'atelier-wishlist', storage: createJSONStorage(() => localStorage) },
   ),

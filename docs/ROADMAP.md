@@ -104,7 +104,9 @@ Cada módulo se entrega **completo y funcional** antes de avanzar. Estado:
 - ✅ Creación/edición de promociones y cupones desde el panel (CRUD completo +
   activar/desactivar) — verificado E2E; los cupones aplican en el checkout
 
+- ✅ Sincronización carrito/wishlist con Supabase: fusión al iniciar sesión +
+  guardado con debounce; persisten entre dispositivos (verificado E2E)
+
 Pendientes menores (mejoras futuras, no bloquean producción):
-- Sincronización carrito/wishlist con Supabase (hoy local)
 - Integración real de pasarela de pagos (estructura ya lista)
 - Comparador de productos
