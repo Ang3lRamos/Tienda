@@ -68,11 +68,17 @@ Cada módulo se entrega **completo y funcional** antes de avanzar. Estado:
   método "contra entrega" operativo
 - ✅ Verificado contra la BD real (order + item + RPC de inventario)
 
-## Fase 8 — Panel de administración ⬜
-- Dashboard (KPIs + gráficas Recharts)
-- CRUD: productos (+variantes/imágenes), categorías, marcas
-- Inventario (movimientos, alertas), pedidos, clientes, usuarios/roles
-- Promociones/cupones, Dashboard de IA, configuración
+## Fase 8 — Panel de administración ✅
+- ✅ Layout con sidebar + Dashboard (KPIs reales + gráfica Recharts + top ventas)
+- ✅ Productos: CRUD de ficha (list + crear/editar/eliminar/estado)
+- ✅ Categorías y Marcas: CRUD completo
+- ✅ Inventario: ajustes de stock (entradas/salidas vía RPC + historial)
+- ✅ Pedidos: lista + cambio de estado
+- ✅ Clientes (lectura), Usuarios/roles (cambio de rol, solo admin)
+- ✅ Promociones: lista + activar/desactivar
+- ✅ Dashboard de IA: conversaciones, mensajes, productos más consultados
+- ✅ Configuración (base). Verificado: consultas válidas + rutas protegidas
+- ⬜ Gestión de variantes/imágenes por UI y creación de promos/cupones (pendiente)
 
 ## Fase 9 — Pulido y producción ⬜
 - SEO (sitemap, robots, OG), accesibilidad, animaciones (Framer Motion)
