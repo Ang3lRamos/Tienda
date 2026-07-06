@@ -91,8 +91,14 @@ Cada módulo se entrega **completo y funcional** antes de avanzar. Estado:
 ---
 
 ## Estado: TODAS LAS FASES COMPLETADAS ✅
+
+### Post-lanzamiento
+- ✅ Gestión completa de productos por UI: variantes (color/talla/SKU/precio/stock)
+  e imágenes desde el panel → producto comprable de punta a punta
+  (verificado E2E: admin crea producto → queda publicado y disponible)
+
 Pendientes menores (mejoras futuras, no bloquean producción):
-- Gestión de variantes/imágenes de producto por UI (hoy por SKU/BD)
+- Subida de imágenes a Supabase Storage (hoy por URL)
 - Creación de promociones/cupones desde el panel
 - Sincronización carrito/wishlist con Supabase (hoy local)
 - Integración real de pasarela de pagos (estructura ya lista)

@@ -38,6 +38,20 @@ export async function listOrders(): Promise<AdminOrderRow[]> {
 }
 
 /* ------------------------------ Productos ----------------------------- */
+export interface AdminProductImage {
+  url: string;
+  alt: string | null;
+  isPrimary: boolean;
+}
+export interface AdminProductVariant {
+  id: string;
+  color: string | null;
+  colorHex: string | null;
+  size: string | null;
+  sku: string;
+  price: number | null;
+  quantity: number;
+}
 export interface AdminProductRow {
   id: string;
   name: string;
@@ -54,13 +68,15 @@ export interface AdminProductRow {
   description: string | null;
   material: string | null;
   careInstructions: string | null;
+  images: AdminProductImage[];
+  variants: AdminProductVariant[];
 }
 export async function listProducts(): Promise<AdminProductRow[]> {
   const supabase = await createServerSupabase();
   const { data } = await supabase
     .from('products')
     .select(
-      'id, name, slug, status, is_featured, base_price, compare_at_price, category_id, brand_id, gender, description, material, care_instructions, categories(name), brands(name)',
+      'id, name, slug, status, is_featured, base_price, compare_at_price, category_id, brand_id, gender, description, material, care_instructions, categories(name), brands(name), product_images(url, alt, is_primary, position), product_variants(id, color, color_hex, size, sku, price, is_active, inventory(quantity))',
     )
     .order('created_at', { ascending: false });
   const rows =
@@ -80,6 +96,17 @@ export async function listProducts(): Promise<AdminProductRow[]> {
       care_instructions: string | null;
       categories: { name: string } | null;
       brands: { name: string } | null;
+      product_images: { url: string; alt: string | null; is_primary: boolean; position: number }[];
+      product_variants: {
+        id: string;
+        color: string | null;
+        color_hex: string | null;
+        size: string | null;
+        sku: string;
+        price: number | null;
+        is_active: boolean;
+        inventory: { quantity: number } | { quantity: number }[] | null;
+      }[];
     }[]) ?? [];
   return rows.map((p) => ({
     id: p.id,
@@ -97,6 +124,23 @@ export async function listProducts(): Promise<AdminProductRow[]> {
     description: p.description,
     material: p.material,
     careInstructions: p.care_instructions,
+    images: [...(p.product_images ?? [])]
+      .sort((a, b) => Number(b.is_primary) - Number(a.is_primary) || a.position - b.position)
+      .map((im) => ({ url: im.url, alt: im.alt, isPrimary: im.is_primary })),
+    variants: (p.product_variants ?? [])
+      .filter((v) => v.is_active)
+      .map((v) => {
+        const inv = Array.isArray(v.inventory) ? v.inventory[0] : v.inventory;
+        return {
+          id: v.id,
+          color: v.color,
+          colorHex: v.color_hex,
+          size: v.size,
+          sku: v.sku,
+          price: v.price,
+          quantity: inv?.quantity ?? 0,
+        };
+      }),
   }));
 }
 

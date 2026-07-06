@@ -73,6 +73,22 @@ export async function deleteTaxonomy(kind: 'categories' | 'brands', id: string):
 }
 
 /* ------------------------------ Productos ----------------------------- */
+const imageSchema = z.object({
+  url: z.string().url('URL de imagen no válida'),
+  alt: z.string().optional(),
+  isPrimary: z.boolean().default(false),
+});
+
+const variantSchema = z.object({
+  id: z.string().uuid().optional(),
+  color: z.string().optional(),
+  colorHex: z.string().optional(),
+  size: z.string().optional(),
+  sku: z.string().min(1, 'SKU requerido'),
+  price: z.number().nonnegative().nullable().optional(),
+  quantity: z.number().int().nonnegative().default(0),
+});
+
 const productSchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().min(2, 'Nombre requerido'),
@@ -86,6 +102,8 @@ const productSchema = z.object({
   careInstructions: z.string().optional(),
   status: z.enum(['draft', 'published', 'archived']).default('draft'),
   isFeatured: z.boolean().default(false),
+  images: z.array(imageSchema).default([]),
+  variants: z.array(variantSchema).default([]),
 });
 
 export async function upsertProduct(input: unknown): Promise<Result> {
@@ -93,6 +111,10 @@ export async function upsertProduct(input: unknown): Promise<Result> {
   const parsed = productSchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos' };
   const p = parsed.data;
+
+  // SKUs duplicados dentro del mismo producto
+  const skus = p.variants.map((v) => v.sku.trim());
+  if (new Set(skus).size !== skus.length) return { error: 'Hay SKUs repetidos entre las variantes.' };
 
   const admin = createAdminSupabase();
   const payload = {
@@ -111,13 +133,76 @@ export async function upsertProduct(input: unknown): Promise<Result> {
     published_at: p.status === 'published' ? new Date().toISOString() : null,
   };
 
-  const query = p.id
-    ? admin.from('products').update(payload as never).eq('id', p.id)
-    : admin.from('products').insert(payload as never);
-  const { error } = await query;
-  if (error) return { error: 'No fue posible guardar el producto. ¿Nombre duplicado?' };
+  // 1) Producto (crear o actualizar) → obtener id
+  let productId = p.id;
+  if (productId) {
+    const { error } = await admin.from('products').update(payload as never).eq('id', productId);
+    if (error) return { error: 'No fue posible guardar el producto. ¿Nombre duplicado?' };
+  } else {
+    const { data, error } = await admin
+      .from('products')
+      .insert(payload as never)
+      .select('id')
+      .single();
+    if (error || !data) return { error: 'No fue posible crear el producto. ¿Nombre duplicado?' };
+    productId = (data as { id: string }).id;
+  }
+
+  // 2) Variantes + inventario (sincronización)
+  const { data: existing } = await admin
+    .from('product_variants')
+    .select('id')
+    .eq('product_id', productId);
+  const existingIds = ((existing as { id: string }[]) ?? []).map((v) => v.id);
+  const incomingIds = new Set(p.variants.map((v) => v.id).filter(Boolean));
+  const toDelete = existingIds.filter((id) => !incomingIds.has(id));
+  if (toDelete.length) await admin.from('product_variants').delete().in('id', toDelete);
+
+  for (const v of p.variants) {
+    const vPayload = {
+      product_id: productId,
+      sku: v.sku.trim(),
+      color: v.color || null,
+      color_hex: v.colorHex || null,
+      size: v.size || null,
+      price: v.price ?? null,
+      is_active: true,
+    };
+    let variantId = v.id;
+    if (variantId) {
+      const { error } = await admin.from('product_variants').update(vPayload as never).eq('id', variantId);
+      if (error) return { error: `Error en la variante ${v.sku}. ¿SKU duplicado?` };
+    } else {
+      const { data, error } = await admin
+        .from('product_variants')
+        .insert(vPayload as never)
+        .select('id')
+        .single();
+      if (error || !data) return { error: `No se pudo crear la variante ${v.sku}. ¿SKU duplicado?` };
+      variantId = (data as { id: string }).id;
+    }
+    await admin
+      .from('inventory')
+      .upsert({ variant_id: variantId, quantity: v.quantity } as never, { onConflict: 'variant_id' });
+  }
+
+  // 3) Imágenes (reemplazo completo)
+  await admin.from('product_images').delete().eq('product_id', productId);
+  const images = p.images.filter((im) => im.url);
+  if (images.length) {
+    const hasPrimary = images.some((im) => im.isPrimary);
+    const rows = images.map((im, i) => ({
+      product_id: productId,
+      url: im.url,
+      alt: im.alt || null,
+      position: i,
+      is_primary: hasPrimary ? im.isPrimary : i === 0,
+    }));
+    await admin.from('product_images').insert(rows as never);
+  }
 
   revalidatePath('/admin/productos');
+  revalidatePath('/');
   return { success: true };
 }
 
