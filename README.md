@@ -38,6 +38,22 @@ tool calling)** que responde únicamente con datos reales de la tienda.
 | `npm run typecheck` | Chequeo de tipos (tsc) |
 | `npm run db:types` | Regenera `types/database.types.ts` desde Supabase |
 
+## Producción (Vercel)
+
+1. **Variables de entorno** en Vercel → Settings → Environment Variables:
+   `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+   `SUPABASE_SERVICE_ROLE_KEY`, `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`,
+   y `NEXT_PUBLIC_SITE_URL` = tu URL de producción (afecta SEO, sitemap y OG).
+2. **Cuenta admin:** regístrate en `/register`, luego en Supabase SQL Editor:
+   ```sql
+   update profiles set role_id = (select id from roles where name='admin')
+   where email = 'tu-correo@ejemplo.com';
+   ```
+3. **Notificaciones en tiempo real:** Supabase → Database → Replication →
+   activa la tabla `orders` para recibir avisos de nuevos pedidos en el panel.
+4. **Chatbot:** los modelos `:free` de OpenRouter pueden saturarse (429); el
+   cliente hace fallback automático. Para uso intensivo, usa una key con créditos.
+
 ## Documentación
 
 - `docs/ARCHITECTURE.md` — arquitectura y estructura del proyecto.

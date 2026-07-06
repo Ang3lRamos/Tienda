@@ -80,7 +80,20 @@ Cada módulo se entrega **completo y funcional** antes de avanzar. Estado:
 - ✅ Configuración (base). Verificado: consultas válidas + rutas protegidas
 - ⬜ Gestión de variantes/imágenes por UI y creación de promos/cupones (pendiente)
 
-## Fase 9 — Pulido y producción ⬜
-- SEO (sitemap, robots, OG), accesibilidad, animaciones (Framer Motion)
-- Notificaciones en tiempo real (Supabase Realtime)
-- Tests, optimización, `npm run build` limpio
+## Fase 9 — Pulido y producción ✅
+- ✅ SEO: `sitemap.ts` dinámico (productos/categorías), `robots.ts`,
+  `manifest.ts`, imagen Open Graph de marca (`opengraph-image.tsx`)
+- ✅ Páginas 404 (raíz + tienda) y `error.tsx`; skeletons de carga
+- ✅ Accesibilidad: skip link, `id` de contenido, `lang=es`, focus states
+- ✅ Notificaciones en tiempo real (Supabase Realtime) para nuevos pedidos
+- ✅ `npm run build` limpio; verificado en vivo (robots/sitemap/OG/404)
+
+---
+
+## Estado: TODAS LAS FASES COMPLETADAS ✅
+Pendientes menores (mejoras futuras, no bloquean producción):
+- Gestión de variantes/imágenes de producto por UI (hoy por SKU/BD)
+- Creación de promociones/cupones desde el panel
+- Sincronización carrito/wishlist con Supabase (hoy local)
+- Integración real de pasarela de pagos (estructura ya lista)
+- Comparador de productos

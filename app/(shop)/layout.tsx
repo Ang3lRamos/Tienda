@@ -17,8 +17,16 @@ export default async function ShopLayout({
 
   return (
     <div className="flex min-h-dvh flex-col">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-foreground focus:px-4 focus:py-2 focus:text-background"
+      >
+        Saltar al contenido
+      </a>
       <Navbar isAuthed={!!user} />
-      <main className="flex-1">{children}</main>
+      <main id="main-content" className="flex-1">
+        {children}
+      </main>
       <Footer />
       <CartDrawer />
       <ChatWidget />

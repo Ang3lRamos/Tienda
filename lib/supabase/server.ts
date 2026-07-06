@@ -38,6 +38,18 @@ export async function createServerSupabase() {
 }
 
 /**
+ * Cliente público sin sesión (anon key, sin cookies). Útil para generación
+ * estática/sitemap donde no hay contexto de request (cookies()).
+ */
+export function createPublicSupabase() {
+  return createAdminClientBase<Database>(
+    publicEnv.NEXT_PUBLIC_SUPABASE_URL,
+    publicEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    { auth: { persistSession: false, autoRefreshToken: false } },
+  );
+}
+
+/**
  * Cliente ADMIN con service_role: ignora RLS. Úsalo SÓLO en el servidor
  * para operaciones controladas (webhooks, tareas de sistema, el chatbot
  * consultando el catálogo). NUNCA lo expongas al cliente.

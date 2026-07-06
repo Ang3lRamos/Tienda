@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { AdminSidebar } from '@/features/admin/components/admin-sidebar';
 import { AdminMobileBar } from '@/features/admin/components/admin-mobile-bar';
+import { RealtimeOrders } from '@/features/admin/components/realtime-orders';
 import { SignOutButton } from '@/features/auth/components/sign-out-button';
 import { siteConfig } from '@/config/site';
 
@@ -41,6 +42,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Contenido */}
       <div className="min-w-0">
         <AdminMobileBar />
+        <RealtimeOrders />
         <main className="p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
