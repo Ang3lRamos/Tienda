@@ -59,9 +59,14 @@ Cada módulo se entrega **completo y funcional** antes de avanzar. Estado:
 - ✅ Fallback automático entre modelos gratuitos (429) — default gpt-oss-20b:free
 - ✅ Verificado en vivo: ofertas, más vendido, búsqueda, stock por variante
 
-## Fase 7 — Checkout (estructura para pagos) ⬜
-- Flujo de checkout, creación de pedido, reserva de stock
-- Estructura desacoplada lista para integrar pasarela (Stripe/MercadoPago…)
+## Fase 7 — Checkout (estructura para pagos) ✅
+- ✅ Flujo /checkout (envío + pago) con validación server-side de stock/precios
+- ✅ Creación de pedido (orders/order_items snapshot) + descuento de stock
+  transaccional (apply_inventory_movement); cupones
+- ✅ Confirmación /pedido/[n]; account/pedidos con pedidos reales
+- ✅ Capa de pagos desacoplada (services/payments) lista para Stripe/MercadoPago;
+  método "contra entrega" operativo
+- ✅ Verificado contra la BD real (order + item + RPC de inventario)
 
 ## Fase 8 — Panel de administración ⬜
 - Dashboard (KPIs + gráficas Recharts)
