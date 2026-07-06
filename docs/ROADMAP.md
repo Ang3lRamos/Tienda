@@ -97,8 +97,11 @@ Cada módulo se entrega **completo y funcional** antes de avanzar. Estado:
   e imágenes desde el panel → producto comprable de punta a punta
   (verificado E2E: admin crea producto → queda publicado y disponible)
 
+- ✅ Subida de imágenes a Supabase Storage (bucket `product-images`, endpoint
+  `/api/admin/upload-image` con auth admin; botón "Subir" en el formulario) —
+  verificado E2E (archivo sube al bucket y queda en el producto)
+
 Pendientes menores (mejoras futuras, no bloquean producción):
-- Subida de imágenes a Supabase Storage (hoy por URL)
 - Creación de promociones/cupones desde el panel
 - Sincronización carrito/wishlist con Supabase (hoy local)
 - Integración real de pasarela de pagos (estructura ya lista)

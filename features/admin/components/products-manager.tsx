@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Plus, Pencil, Trash2, ExternalLink, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, ExternalLink, X, Upload, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -62,6 +62,8 @@ export function ProductsManager({
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<Form>(empty);
   const [pending, startTransition] = useTransition();
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -103,6 +105,31 @@ export function ProductsManager({
     set('images', form.images.map((im, idx) => (idx === i ? { ...im, ...patch } : im)));
   const rmImage = (i: number) => set('images', form.images.filter((_, idx) => idx !== i));
   const setPrimary = (i: number) => set('images', form.images.map((im, idx) => ({ ...im, isPrimary: idx === i })));
+
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/admin/upload-image', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!res.ok) toast.error(data.error ?? 'No se pudo subir la imagen');
+      else {
+        setForm((f) => ({
+          ...f,
+          images: [...f.images, { url: data.url, alt: '', isPrimary: f.images.length === 0 }],
+        }));
+        toast.success('Imagen subida');
+      }
+    } catch {
+      toast.error('Error al subir la imagen');
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  }
 
   // --- variantes ---
   const addVariant = () => set('variants', [...form.variants, emptyVariant()]);
@@ -285,17 +312,45 @@ export function ProductsManager({
 
             {/* Imágenes */}
             <section className="space-y-3 border-t-2 border-border pt-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="kicker">Imágenes</h3>
-                <Button type="button" size="sm" variant="outline" onClick={addImage}>
-                  <Plus className="size-3.5" /> Imagen
-                </Button>
+                <div className="flex items-center gap-2">
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/avif,image/gif"
+                    className="hidden"
+                    onChange={handleUpload}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => fileRef.current?.click()}
+                    disabled={uploading}
+                  >
+                    {uploading ? <Loader2 className="size-3.5 animate-spin" /> : <Upload className="size-3.5" />}
+                    {uploading ? 'Subiendo…' : 'Subir'}
+                  </Button>
+                  <Button type="button" size="sm" variant="outline" onClick={addImage}>
+                    <Plus className="size-3.5" /> URL
+                  </Button>
+                </div>
               </div>
               {form.images.length === 0 && (
-                <p className="text-xs text-muted-foreground">Añade la URL de al menos una imagen (p. ej. de Unsplash o tu CDN).</p>
+                <p className="text-xs text-muted-foreground">
+                  Sube una imagen (máx. 5 MB) o añade una URL. Marca una como principal.
+                </p>
               )}
               {form.images.map((im, i) => (
                 <div key={i} className="flex items-center gap-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {im.url && (
+                    <img
+                      src={im.url}
+                      alt=""
+                      className="size-9 shrink-0 border-2 border-border object-cover"
+                    />
+                  )}
                   <input
                     value={im.url}
                     onChange={(e) => updImage(i, { url: e.target.value })}
