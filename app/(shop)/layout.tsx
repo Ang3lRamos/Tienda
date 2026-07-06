@@ -1,5 +1,5 @@
 import { Navbar } from '@/components/layout/navbar';
-import { Footer } from '@/components/layout/footer';
+import { ConditionalFooter } from '@/components/layout/conditional-footer';
 import { CartDrawer } from '@/components/layout/cart-drawer';
 import { ChatWidget } from '@/features/chatbot/components/chat-widget';
 import { createServerSupabase } from '@/lib/supabase/server';
@@ -27,7 +27,7 @@ export default async function ShopLayout({
       <main id="main-content" className="flex-1">
         {children}
       </main>
-      <Footer />
+      <ConditionalFooter />
       <CartDrawer />
       <ChatWidget />
     </div>

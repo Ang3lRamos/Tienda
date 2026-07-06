@@ -17,6 +17,7 @@ export default async function AccountPage() {
   const profile = await getAccountProfile(user.id);
   const roleName = await getCurrentRole();
 
+  // El rol se usa solo para decidir si mostrar el acceso al panel; NO se muestra al cliente.
   const rows = [
     { label: 'Nombre', value: profile?.full_name ?? '—' },
     { label: 'Correo', value: profile?.email ?? user.email ?? '—' },
@@ -27,7 +28,6 @@ export default async function AccountPage() {
         ? format(new Date(profile.created_at), "d 'de' MMMM yyyy", { locale: es })
         : '—',
     },
-    { label: 'Rol', value: roleName ?? 'customer' },
   ];
 
   return (
@@ -41,11 +41,14 @@ export default async function AccountPage() {
 
       <dl className="divide-y-2 divide-border border-2 border-foreground">
         {rows.map((row) => (
-          <div key={row.label} className="grid grid-cols-3 gap-4 px-5 py-4">
+          <div
+            key={row.label}
+            className="grid grid-cols-1 gap-1 px-5 py-4 sm:grid-cols-3 sm:gap-4"
+          >
             <dt className="font-display text-xs font-bold tracking-[0.12em] text-muted-foreground uppercase">
               {row.label}
             </dt>
-            <dd className="col-span-2 text-sm">{row.value}</dd>
+            <dd className="text-sm break-words sm:col-span-2">{row.value}</dd>
           </div>
         ))}
       </dl>

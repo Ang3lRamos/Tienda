@@ -16,7 +16,7 @@ export function AccountNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex gap-1 overflow-x-auto md:flex-col md:gap-0">
+    <nav className="grid grid-cols-2 gap-1 md:flex md:flex-col md:gap-0">
       {items.map((item) => {
         const active = pathname === item.href;
         return (
@@ -25,14 +25,14 @@ export function AccountNav() {
             href={item.href}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'flex items-center gap-3 border-2 px-4 py-3 font-display text-xs font-bold tracking-[0.12em] whitespace-nowrap uppercase transition-colors md:border-0 md:border-l-2',
+              'flex min-w-0 items-center gap-2 border-2 px-3 py-3 font-display text-xs font-bold tracking-[0.1em] uppercase transition-colors md:gap-3 md:border-0 md:border-l-2 md:px-4',
               active
                 ? 'border-foreground bg-foreground text-background md:bg-transparent md:text-foreground'
                 : 'border-transparent text-muted-foreground hover:text-foreground',
             )}
           >
-            <item.icon className="size-4" />
-            {item.title}
+            <item.icon className="size-4 shrink-0" />
+            <span className="truncate">{item.title}</span>
           </Link>
         );
       })}
