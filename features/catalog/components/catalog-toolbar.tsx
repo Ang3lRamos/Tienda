@@ -41,12 +41,12 @@ export function CatalogToolbar({
   }
 
   return (
-    <div className="flex items-center justify-between gap-4 border-b-2 border-foreground py-4">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-foreground py-4">
       <p className="text-xs font-bold tracking-[0.12em] text-muted-foreground uppercase">
         {total} {total === 1 ? 'producto' : 'productos'}
       </p>
 
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-2">
         {/* Filtros móviles */}
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetTrigger asChild>
@@ -71,7 +71,7 @@ export function CatalogToolbar({
           id="sort"
           value={searchParams.get('sort') ?? 'nuevos'}
           onChange={(e) => setSort(e.target.value)}
-          className="h-9 border-2 border-foreground bg-background px-3 text-xs font-bold tracking-wide uppercase outline-none"
+          className="h-9 min-w-0 max-w-[9.5rem] border-2 border-foreground bg-background px-2 text-xs font-bold tracking-wide uppercase outline-none sm:max-w-none sm:px-3"
         >
           {sortOptions.map((o) => (
             <option key={o.value} value={o.value}>
