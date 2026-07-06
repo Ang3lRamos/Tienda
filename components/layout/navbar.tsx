@@ -57,7 +57,7 @@ export function Navbar({ isAuthed = false }: { isAuthed?: boolean }) {
       </div>
 
       <div className="border-b-2 border-foreground">
-        <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-4 px-4 sm:px-6">
+        <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-2 px-4 sm:gap-4 sm:px-6">
           {/* Menú móvil */}
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
@@ -82,6 +82,19 @@ export function Navbar({ isAuthed = false }: { isAuthed?: boolean }) {
                     {item.title}
                   </Link>
                 ))}
+                <Link
+                  href="/favoritos"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 border-b border-border py-4 font-display text-lg font-bold tracking-tight uppercase hover:text-muted-foreground"
+                >
+                  <Heart className="size-5" /> Favoritos
+                </Link>
+                <div className="flex items-center justify-between py-4">
+                  <span className="font-display text-sm font-bold tracking-tight uppercase">
+                    Tema
+                  </span>
+                  <ThemeToggle />
+                </div>
               </nav>
             </SheetContent>
           </Sheet>
@@ -123,8 +136,16 @@ export function Navbar({ isAuthed = false }: { isAuthed?: boolean }) {
             >
               <Search className="size-5" />
             </Button>
-            <ThemeToggle />
-            <Button variant="ghost" size="icon" asChild aria-label="Favoritos" className="relative">
+            <span className="hidden sm:inline-flex">
+              <ThemeToggle />
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+              aria-label="Favoritos"
+              className="relative hidden sm:inline-flex"
+            >
               <Link href="/favoritos">
                 <Heart className="size-5" />
                 {wishCount > 0 && (

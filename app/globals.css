@@ -159,6 +159,8 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    /* Evita desbordamiento horizontal (zoom out en móvil); seguro con sticky. */
+    overflow-x: clip;
   }
   /* Titulares brutalistas: display pesado, mayúsculas, tracking compacto. */
   h1,
