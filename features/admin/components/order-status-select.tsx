@@ -3,6 +3,7 @@
 import { useTransition } from 'react';
 import { toast } from 'sonner';
 import { updateOrderStatus } from '../actions';
+import { orderStatusLabel } from '@/lib/utils';
 
 const STATUSES = ['pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'];
 
@@ -29,7 +30,7 @@ export function OrderStatusSelect({
     >
       {STATUSES.map((s) => (
         <option key={s} value={s}>
-          {s}
+          {orderStatusLabel(s)}
         </option>
       ))}
     </select>

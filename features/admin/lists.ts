@@ -37,6 +37,91 @@ export async function listOrders(): Promise<AdminOrderRow[]> {
   }));
 }
 
+export interface AdminOrderDetail {
+  orderNumber: string;
+  status: string;
+  paymentStatus: string;
+  subtotal: number;
+  discountTotal: number;
+  shippingTotal: number;
+  taxTotal: number;
+  grandTotal: number;
+  placedAt: string | null;
+  createdAt: string;
+  notes: string | null;
+  customerName: string | null;
+  customerEmail: string | null;
+  shippingAddress: Record<string, unknown> | null;
+  items: {
+    productName: string;
+    label: string | null;
+    sku: string | null;
+    quantity: number;
+    unitPrice: number;
+    lineTotal: number;
+  }[];
+}
+export async function getAdminOrder(orderNumber: string): Promise<AdminOrderDetail | null> {
+  const supabase = await createServerSupabase();
+  const { data } = await supabase
+    .from('orders')
+    .select(
+      'order_number, status, payment_status, subtotal, discount_total, shipping_total, tax_total, grand_total, placed_at, created_at, notes, shipping_address, profiles(full_name, email), order_items(product_name, variant_label, sku, quantity, unit_price, line_total)',
+    )
+    .eq('order_number', orderNumber)
+    .maybeSingle();
+
+  const o = data as unknown as {
+    order_number: string;
+    status: string;
+    payment_status: string;
+    subtotal: number;
+    discount_total: number;
+    shipping_total: number;
+    tax_total: number;
+    grand_total: number;
+    placed_at: string | null;
+    created_at: string;
+    notes: string | null;
+    shipping_address: Record<string, unknown> | null;
+    profiles: { full_name: string | null; email: string | null } | null;
+    order_items: {
+      product_name: string;
+      variant_label: string | null;
+      sku: string | null;
+      quantity: number;
+      unit_price: number;
+      line_total: number;
+    }[];
+  } | null;
+  if (!o) return null;
+
+  return {
+    orderNumber: o.order_number,
+    status: o.status,
+    paymentStatus: o.payment_status,
+    subtotal: o.subtotal,
+    discountTotal: o.discount_total,
+    shippingTotal: o.shipping_total,
+    taxTotal: o.tax_total,
+    grandTotal: o.grand_total,
+    placedAt: o.placed_at,
+    createdAt: o.created_at,
+    notes: o.notes,
+    customerName: o.profiles?.full_name ?? null,
+    customerEmail: o.profiles?.email ?? null,
+    shippingAddress: o.shipping_address,
+    items: (o.order_items ?? []).map((it) => ({
+      productName: it.product_name,
+      label: it.variant_label,
+      sku: it.sku,
+      quantity: it.quantity,
+      unitPrice: it.unit_price,
+      lineTotal: it.line_total,
+    })),
+  };
+}
+
 /* ------------------------------ Productos ----------------------------- */
 export interface AdminProductImage {
   url: string;
@@ -359,6 +444,49 @@ export async function listCoupons(): Promise<CouponRowView[]> {
     startsAt: c.starts_at,
     endsAt: c.ends_at,
     isActive: c.is_active,
+  }));
+}
+
+/* ------------------------------- Reseñas ------------------------------ */
+export interface AdminReviewRow {
+  id: string;
+  productName: string;
+  productSlug: string;
+  author: string | null;
+  rating: number;
+  title: string | null;
+  comment: string | null;
+  isApproved: boolean;
+  createdAt: string;
+}
+export async function listReviews(): Promise<AdminReviewRow[]> {
+  const supabase = await createServerSupabase();
+  const { data } = await supabase
+    .from('reviews')
+    .select('id, rating, title, comment, is_approved, created_at, products(name, slug), profiles(full_name, email)')
+    .order('created_at', { ascending: false })
+    .limit(200);
+  const rows =
+    (data as unknown as {
+      id: string;
+      rating: number;
+      title: string | null;
+      comment: string | null;
+      is_approved: boolean;
+      created_at: string;
+      products: { name: string; slug: string } | null;
+      profiles: { full_name: string | null; email: string | null } | null;
+    }[]) ?? [];
+  return rows.map((r) => ({
+    id: r.id,
+    productName: r.products?.name ?? 'Producto',
+    productSlug: r.products?.slug ?? '',
+    author: r.profiles?.full_name ?? r.profiles?.email ?? null,
+    rating: r.rating,
+    title: r.title,
+    comment: r.comment,
+    isApproved: r.is_approved,
+    createdAt: r.created_at,
   }));
 }
 
