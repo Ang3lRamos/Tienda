@@ -34,7 +34,10 @@ export function slugify(text: string): string {
     .replace(new RegExp('[\\u0300-\\u036f]', 'g'), '') // elimina diacríticos
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s-]/g, '')
+    // El guion bajo se conserva aquí para que el paso siguiente pueda
+    // convertirlo en separador; si se eliminase antes, "cargo__beige"
+    // quedaría como "cargobeige" en vez de "cargo-beige".
+    .replace(/[^a-z0-9\s_-]/g, '')
     .replace(/[\s_-]+/g, '-')
     .replace(/^-+|-+$/g, '');
 }

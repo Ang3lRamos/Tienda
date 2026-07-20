@@ -33,8 +33,12 @@ shadcn/ui + Supabase (Postgres/Auth/Storage/RLS) + OpenRouter (chatbot IA).
 ## Verificación antes de dar por hecho un módulo
 
 ```
-npm run typecheck && npm run lint && npm run build
+npm run typecheck && npm run lint && npm test && npm run build
 ```
+
+Los tests (Vitest, carpeta `tests/`) cubren **lógica pura**: cálculo de
+totales, utilidades compartidas y plantillas de correo. No tocan Supabase.
+Si añades lógica de dinero o de formato, acompáñala de su test.
 
 ## Estado y plan
 

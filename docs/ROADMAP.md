@@ -177,11 +177,21 @@ Bloqueantes para abrir al público:
 No bloqueantes:
 
 - ⬜ Redes sociales del footer apuntan a `#`.
-- ⬜ Compra como invitado: la página de checkout se puede abrir sin sesión,
-  pero `createOrderAction` la exige. Conviene redirigir antes de que el
-  usuario rellene el formulario, o habilitar compra sin cuenta.
-- ⬜ Sin tests automatizados (ni unitarios ni E2E); la verificación es manual
-  con Playwright instalado temporalmente.
+- ⬜ Compra como invitado: hoy hay que tener cuenta. El flujo es correcto
+  (el middleware redirige a `/login?redirect=/checkout` y tras entrar se
+  vuelve al checkout), así que esto es una decisión de producto, no un fallo.
+- ✅ Tests automatizados con **Vitest** (`npm test`, `npm run test:watch`).
+  40 tests sobre la lógica pura donde un fallo cuesta dinero o rompe un
+  correo: `computeTotals` (envío, umbral, descuentos, impuestos, redondeo a
+  pesos enteros), utilidades compartidas (`formatPrice`, `slugify`,
+  etiquetas de estado, `isCancellableStatus`) y las plantillas de correo
+  (totales, filas condicionales, escapado de HTML, URLs absolutas).
+  `vitest.config.ts` inyecta variables de entorno ficticias, porque
+  `config/env.ts` valida el entorno al importarse, y sustituye `server-only`
+  por un stub. Comprobado por mutación: al aplicar el impuesto sobre el
+  subtotal bruto, la suite falla.
+  Pendiente: no hay tests de integración ni E2E (Server Actions, RLS y
+  checkout completo siguen verificándose a mano).
 - ⬜ Addi: el mapeo de endpoints/campos no está probado contra el entorno real.
 - ⬜ `NEXT_PUBLIC_SITE_URL` apunta a una URL de deploy con hash; debe ser el
   dominio estable (afecta a `emailRedirectTo`, callbacks de Addi, sitemap y OG).
