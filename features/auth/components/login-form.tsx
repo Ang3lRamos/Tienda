@@ -10,8 +10,12 @@ import { Field } from './field';
 import { GoogleButton } from './google-button';
 import { signInAction } from '../actions';
 import { loginSchema, type LoginInput } from '@/schemas/auth';
+import { useMounted } from '@/hooks/use-mounted';
 
 export function LoginForm({ redirectTo = '/account' }: { redirectTo?: string }) {
+  // Hasta que React hidrate, el envío del formulario sería nativo. Se
+  // bloquea el submit para que las credenciales nunca viajen en la URL.
+  const mounted = useMounted();
   const [pending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
   const {
@@ -23,6 +27,7 @@ export function LoginForm({ redirectTo = '/account' }: { redirectTo?: string }) 
   return (
     <form
       noValidate
+      method="post"
       onSubmit={handleSubmit((values) => {
         setFormError(null);
         startTransition(async () => {
@@ -70,7 +75,7 @@ export function LoginForm({ redirectTo = '/account' }: { redirectTo?: string }) 
         </p>
       )}
 
-      <Button type="submit" size="lg" className="w-full" disabled={pending}>
+      <Button type="submit" size="lg" className="w-full" disabled={pending || !mounted}>
         {pending ? 'Entrando…' : 'Iniciar sesión'}
       </Button>
 

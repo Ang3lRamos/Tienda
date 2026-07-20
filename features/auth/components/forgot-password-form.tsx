@@ -8,8 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Field } from './field';
 import { requestPasswordResetAction } from '../actions';
 import { forgotPasswordSchema, type ForgotPasswordInput } from '@/schemas/auth';
+import { useMounted } from '@/hooks/use-mounted';
 
 export function ForgotPasswordForm() {
+  // Evita el envío nativo antes de hidratar (el correo acabaría en la URL).
+  const mounted = useMounted();
   const [pending, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
   const {
@@ -33,6 +36,7 @@ export function ForgotPasswordForm() {
   return (
     <form
       noValidate
+      method="post"
       onSubmit={handleSubmit((values) => {
         startTransition(async () => {
           const res = await requestPasswordResetAction(values);
@@ -50,7 +54,7 @@ export function ForgotPasswordForm() {
         error={errors.email?.message}
         {...register('email')}
       />
-      <Button type="submit" size="lg" className="w-full" disabled={pending}>
+      <Button type="submit" size="lg" className="w-full" disabled={pending || !mounted}>
         {pending ? 'Enviando…' : 'Enviar enlace'}
       </Button>
       <p className="text-center text-sm text-muted-foreground">

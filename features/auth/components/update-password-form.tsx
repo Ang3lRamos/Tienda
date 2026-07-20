@@ -8,8 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Field } from './field';
 import { updatePasswordAction } from '../actions';
 import { updatePasswordSchema, type UpdatePasswordInput } from '@/schemas/auth';
+import { useMounted } from '@/hooks/use-mounted';
 
 export function UpdatePasswordForm() {
+  // Evita el envío nativo antes de hidratar (la contraseña acabaría en la URL).
+  const mounted = useMounted();
   const [pending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
   const {
@@ -21,6 +24,7 @@ export function UpdatePasswordForm() {
   return (
     <form
       noValidate
+      method="post"
       onSubmit={handleSubmit((values) => {
         setFormError(null);
         startTransition(async () => {
@@ -56,7 +60,7 @@ export function UpdatePasswordForm() {
           {formError}
         </p>
       )}
-      <Button type="submit" size="lg" className="w-full" disabled={pending}>
+      <Button type="submit" size="lg" className="w-full" disabled={pending || !mounted}>
         {pending ? 'Guardando…' : 'Actualizar contraseña'}
       </Button>
     </form>

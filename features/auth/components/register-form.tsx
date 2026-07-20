@@ -10,8 +10,11 @@ import { Field } from './field';
 import { GoogleButton } from './google-button';
 import { signUpAction } from '../actions';
 import { registerSchema, type RegisterInput } from '@/schemas/auth';
+import { useMounted } from '@/hooks/use-mounted';
 
 export function RegisterForm() {
+  // Evita el envío nativo antes de hidratar (la contraseña acabaría en la URL).
+  const mounted = useMounted();
   const [pending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
@@ -36,6 +39,7 @@ export function RegisterForm() {
   return (
     <form
       noValidate
+      method="post"
       onSubmit={handleSubmit((values) => {
         setFormError(null);
         startTransition(async () => {
@@ -93,7 +97,7 @@ export function RegisterForm() {
         </p>
       )}
 
-      <Button type="submit" size="lg" className="w-full" disabled={pending}>
+      <Button type="submit" size="lg" className="w-full" disabled={pending || !mounted}>
         {pending ? 'Creando cuenta…' : 'Crear cuenta'}
       </Button>
 
