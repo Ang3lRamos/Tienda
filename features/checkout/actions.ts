@@ -3,11 +3,8 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createServerSupabase, createAdminSupabase } from '@/lib/supabase/server';
-import {
-  checkoutSchema,
-  FREE_SHIPPING_THRESHOLD,
-  SHIPPING_COST,
-} from '@/schemas/checkout';
+import { checkoutSchema } from '@/schemas/checkout';
+import { getStoreSettings, computeTotals } from '@/features/settings/queries';
 import { getVariantsForCheckout, validateCoupon } from './queries';
 import { getPaymentProvider } from '@/services/payments';
 import { siteConfig } from '@/config/site';
@@ -83,9 +80,9 @@ export async function createOrderAction(input: unknown): Promise<CreateOrderResu
     couponId = coupon.id;
   }
 
-  // 3) Totales
-  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
-  const grandTotal = Math.max(0, subtotal - discount) + shipping;
+  // 3) Totales (envío e impuestos según la configuración vigente de la tienda)
+  const settings = await getStoreSettings();
+  const { shipping, tax, grandTotal } = computeTotals(subtotal, discount, settings);
   const orderNumber = `ORD-${new Date().getFullYear()}-${Math.random()
     .toString(36)
     .slice(2, 8)
@@ -105,7 +102,7 @@ export async function createOrderAction(input: unknown): Promise<CreateOrderResu
       subtotal,
       discount_total: discount,
       shipping_total: shipping,
-      tax_total: 0,
+      tax_total: tax,
       grand_total: grandTotal,
       coupon_id: couponId,
       shipping_address: address,
@@ -151,6 +148,7 @@ export async function createOrderAction(input: unknown): Promise<CreateOrderResu
       amount: grandTotal,
       currency: siteConfig.currency,
       shippingAmount: shipping,
+      taxAmount: tax,
       customer: { email: user.email, fullName: address.recipient, phone: address.phone },
       items: orderItems.map((oi) => ({
         sku: oi.sku,

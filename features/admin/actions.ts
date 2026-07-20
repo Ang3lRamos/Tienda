@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { createServerSupabase, createAdminSupabase } from '@/lib/supabase/server';
 import { slugify } from '@/lib/utils';
+import { storeSettingsSchema } from '@/schemas/settings';
 
 type Result = { error?: string; success?: boolean };
 
@@ -390,6 +391,47 @@ export async function toggleCoupon(id: string, isActive: boolean): Promise<Resul
   const { error } = await admin.from('coupons').update({ is_active: isActive } as never).eq('id', id);
   if (error) return { error: 'No fue posible actualizar el cupón.' };
   revalidatePath('/admin/promociones');
+  return { success: true };
+}
+
+/* ---------------------------- Configuración --------------------------- */
+export async function updateStoreSettings(input: unknown): Promise<Result> {
+  const current = await assertStaff();
+  if (current !== 'admin') return { error: 'Solo un admin puede cambiar la configuración.' };
+
+  const parsed = storeSettingsSchema.safeParse(input);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Revisa los datos.' };
+  }
+  const s = parsed.data;
+
+  const admin = createAdminSupabase();
+  const { error } = await admin
+    .from('store_settings')
+    .upsert(
+      {
+        id: 1,
+        shipping_cost: s.shippingCost,
+        free_shipping_threshold: s.freeShippingThreshold,
+        tax_rate: s.taxRate,
+        store_name: s.storeName,
+        contact_email: s.contactEmail ?? null,
+        contact_phone: s.contactPhone ?? null,
+        announcement: s.announcement ?? null,
+      } as never,
+      { onConflict: 'id' },
+    );
+
+  if (error) {
+    return {
+      error:
+        'No fue posible guardar. ¿Ejecutaste la migración 0005_settings.sql en Supabase?',
+    };
+  }
+
+  // La configuración afecta al checkout y a la barra de anuncios de toda la tienda.
+  revalidatePath('/', 'layout');
+  revalidatePath('/admin/configuracion');
   return { success: true };
 }
 

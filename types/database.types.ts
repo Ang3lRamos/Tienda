@@ -73,6 +73,17 @@ export type AddressRow = {
   is_default: boolean;
   created_at: string;
 }
+export type StoreSettingsRow = {
+  id: number;
+  shipping_cost: number;
+  free_shipping_threshold: number;
+  tax_rate: number;
+  store_name: string;
+  contact_email: string | null;
+  contact_phone: string | null;
+  announcement: string | null;
+  updated_at: string;
+}
 export type CategoryRow = {
   id: string;
   name: string;
@@ -324,6 +335,7 @@ export type Database = {
       role_permissions: Table<{ role_id: string; permission_id: string }>;
       profiles: Table<ProfileRow>;
       addresses: Table<AddressRow>;
+      store_settings: Table<StoreSettingsRow>;
       categories: Table<CategoryRow>;
       brands: Table<BrandRow>;
       products: Table<ProductRow>;

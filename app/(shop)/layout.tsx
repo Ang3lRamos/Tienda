@@ -5,6 +5,7 @@ import { AccountSync } from '@/features/sync/components/account-sync';
 import { ChatWidget } from '@/features/chatbot/components/chat-widget';
 import { CompareBar } from '@/features/compare/components/compare-bar';
 import { createServerSupabase } from '@/lib/supabase/server';
+import { getStoreSettings } from '@/features/settings/queries';
 
 /** Layout de la tienda pública: navbar fija + contenido + footer. */
 export default async function ShopLayout({
@@ -13,9 +14,12 @@ export default async function ShopLayout({
   children: React.ReactNode;
 }) {
   const supabase = await createServerSupabase();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [
+    {
+      data: { user },
+    },
+    settings,
+  ] = await Promise.all([supabase.auth.getUser(), getStoreSettings()]);
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -25,7 +29,7 @@ export default async function ShopLayout({
       >
         Saltar al contenido
       </a>
-      <Navbar isAuthed={!!user} />
+      <Navbar isAuthed={!!user} announcement={settings.announcement} />
       <main id="main-content" className="flex-1">
         {children}
       </main>

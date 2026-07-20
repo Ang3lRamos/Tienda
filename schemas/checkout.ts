@@ -27,6 +27,8 @@ export const checkoutSchema = z.object({
 export type ShippingAddressInput = z.infer<typeof shippingAddressSchema>;
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
 
-/** Reglas de envío. */
-export const FREE_SHIPPING_THRESHOLD = 200000;
-export const SHIPPING_COST = 15000;
+/**
+ * Las reglas de envío e impuestos viven ahora en la tabla `store_settings`
+ * y se editan desde /admin/configuracion. Ver `features/settings/queries.ts`
+ * (`getStoreSettings` y `computeTotals`), que incluye los valores por defecto.
+ */

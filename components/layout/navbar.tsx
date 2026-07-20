@@ -30,7 +30,14 @@ import { useMounted } from '@/hooks/use-mounted';
 import { siteConfig, mainNav } from '@/config/site';
 import { cn } from '@/lib/utils';
 
-export function Navbar({ isAuthed = false }: { isAuthed?: boolean }) {
+export function Navbar({
+  isAuthed = false,
+  announcement,
+}: {
+  isAuthed?: boolean;
+  /** Primer mensaje de la barra superior, configurable desde el panel. */
+  announcement?: string | null;
+}) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [, startTransition] = useTransition();
@@ -48,7 +55,7 @@ export function Navbar({ isAuthed = false }: { isAuthed?: boolean }) {
       <div className="border-b border-foreground/15 bg-foreground py-2 text-background">
         <Marquee
           items={[
-            'Envío gratis desde $200.000',
+            announcement || 'Envío gratis desde $200.000',
             'Nueva colección Otoño/Invierno 2026',
             'Devoluciones en 30 días',
             '−25% en selección',

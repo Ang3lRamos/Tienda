@@ -10,12 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Field } from '@/features/auth/components/field';
 import { createOrderAction } from '@/features/checkout/actions';
-import {
-  shippingAddressSchema,
-  FREE_SHIPPING_THRESHOLD,
-  SHIPPING_COST,
-  type ShippingAddressInput,
-} from '@/schemas/checkout';
+import { shippingAddressSchema, type ShippingAddressInput } from '@/schemas/checkout';
 import { useCartStore, cartSubtotal } from '@/store/cart';
 import { useMounted } from '@/hooks/use-mounted';
 import { formatPrice, cn } from '@/lib/utils';
@@ -35,7 +30,17 @@ function addressToForm(a: AddressRow): ShippingAddressInput {
   };
 }
 
-export function CheckoutForm({ addresses }: { addresses: AddressRow[] }) {
+export function CheckoutForm({
+  addresses,
+  shippingCost,
+  freeShippingThreshold,
+  taxRate,
+}: {
+  addresses: AddressRow[];
+  shippingCost: number;
+  freeShippingThreshold: number;
+  taxRate: number;
+}) {
   const mounted = useMounted();
   const items = useCartStore((s) => s.items);
   const [pending, startTransition] = useTransition();
@@ -55,9 +60,12 @@ export function CheckoutForm({ addresses }: { addresses: AddressRow[] }) {
     defaultValues: defaultAddress ? addressToForm(defaultAddress) : { country: 'CO' },
   });
 
+  // Estimación en cliente; el servidor recalcula con la configuración vigente
+  // (incluidos los descuentos por cupón) antes de crear el pedido.
   const subtotal = cartSubtotal(items);
-  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
-  const total = subtotal + shipping;
+  const shipping = subtotal >= freeShippingThreshold ? 0 : shippingCost;
+  const tax = Math.round((subtotal * taxRate) / 100);
+  const total = subtotal + shipping + tax;
 
   function selectAddress(a: AddressRow | null) {
     if (a) {
@@ -257,6 +265,12 @@ export function CheckoutForm({ addresses }: { addresses: AddressRow[] }) {
               <span className="text-muted-foreground">Envío</span>
               <span className="tabular-nums">{shipping === 0 ? 'Gratis' : formatPrice(shipping)}</span>
             </div>
+            {tax > 0 && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Impuestos ({taxRate}%)</span>
+                <span className="tabular-nums">{formatPrice(tax)}</span>
+              </div>
+            )}
           </div>
           <Separator className="my-4" />
           <div className="flex justify-between">
