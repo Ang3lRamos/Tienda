@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { ShoppingBag } from 'lucide-react';
 import { getUserOrders } from '@/features/account/queries';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, orderStatusLabel } from '@/lib/utils';
 
 export const metadata: Metadata = { title: 'Mis pedidos' };
 
@@ -52,7 +52,7 @@ export default async function PedidosPage() {
               </div>
               <div className="flex items-center gap-4">
                 <span className="border-2 border-foreground px-2 py-1 text-[0.65rem] font-bold uppercase">
-                  {o.status}
+                  {orderStatusLabel(o.status)}
                 </span>
                 <span className="font-display text-base font-black tabular-nums">
                   {formatPrice(o.grandTotal)}

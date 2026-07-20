@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { createServerSupabase } from '@/lib/supabase/server';
 import { getAccountProfile, getCurrentRole } from '@/features/account/queries';
+import { ProfileForm } from '@/features/account/components/profile-form';
 
 export const metadata: Metadata = { title: 'Perfil' };
 
@@ -52,6 +53,14 @@ export default async function AccountPage() {
           </div>
         ))}
       </dl>
+
+      <ProfileForm
+        defaultValues={{
+          fullName: profile?.full_name ?? '',
+          phone: profile?.phone ?? '',
+        }}
+        email={profile?.email ?? user.email ?? ''}
+      />
 
       {(roleName === 'admin' || roleName === 'staff') && (
         <a

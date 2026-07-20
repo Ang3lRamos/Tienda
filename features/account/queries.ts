@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { createServerSupabase } from '@/lib/supabase/server';
-import type { ProfileRow } from '@/types/database.types';
+import type { ProfileRow, AddressRow } from '@/types/database.types';
 
 /**
  * Consultas del área de cuenta.
@@ -28,6 +28,17 @@ export async function getAccountProfile(
     .match({ id: userId })
     .single();
   return (data as AccountProfile | null) ?? null;
+}
+
+/** Direcciones guardadas del usuario (RLS: solo las suyas). Predeterminada primero. */
+export async function getUserAddresses(): Promise<AddressRow[]> {
+  const supabase = await createServerSupabase();
+  const { data } = await supabase
+    .from('addresses')
+    .select('*')
+    .order('is_default', { ascending: false })
+    .order('created_at', { ascending: false });
+  return (data as AddressRow[] | null) ?? [];
 }
 
 export async function getCurrentRole(): Promise<string | null> {
