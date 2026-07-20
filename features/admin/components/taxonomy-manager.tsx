@@ -88,7 +88,35 @@ export function TaxonomyManager({
         </Button>
       </div>
 
-      <div className="overflow-x-auto border-2 border-foreground">
+      {/* Móvil: tarjetas apiladas */}
+      {rows.length === 0 ? (
+        <p className="text-sm text-muted-foreground md:hidden">Sin registros.</p>
+      ) : (
+        <ul className="space-y-3 md:hidden">
+          {rows.map((row) => (
+            <li key={row.id} className="flex items-start justify-between gap-3 border-2 border-foreground p-4">
+              <div className="min-w-0">
+                <p className="font-display text-sm font-bold uppercase break-words">{row.name}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground break-all">{row.slug}</p>
+                <span className="mt-2 inline-block border-2 border-foreground px-2 py-0.5 text-[0.65rem] font-bold uppercase">
+                  {row.isActive ? 'Activo' : 'Inactivo'}
+                </span>
+              </div>
+              <div className="flex shrink-0 gap-3 text-muted-foreground">
+                <button onClick={() => openEdit(row)} aria-label="Editar" className="hover:text-foreground">
+                  <Pencil className="size-4" />
+                </button>
+                <button onClick={() => remove(row)} aria-label="Eliminar" className="hover:text-destructive">
+                  <Trash2 className="size-4" />
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Escritorio: tabla completa */}
+      <div className="hidden overflow-x-auto border-2 border-foreground md:block">
         <table className="w-full text-sm">
           <thead className="border-b-2 border-foreground bg-secondary/40 text-left">
             <tr className="[&>th]:px-4 [&>th]:py-3 [&>th]:font-display [&>th]:text-xs [&>th]:font-bold [&>th]:uppercase [&>th]:tracking-wider">

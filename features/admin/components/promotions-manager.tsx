@@ -98,7 +98,39 @@ export function PromotionsManager({
         <h2 className="text-2xl">Promociones</h2>
         <Button size="sm" onClick={openNew}><Plus className="size-4" /> Nueva</Button>
       </div>
-      <div className="overflow-x-auto border-2 border-foreground">
+      {/* Móvil: tarjetas apiladas */}
+      {rows.length === 0 ? (
+        <p className="text-sm text-muted-foreground md:hidden">Sin promociones.</p>
+      ) : (
+        <ul className="space-y-3 md:hidden">
+          {rows.map((p) => (
+            <li key={p.id} className="space-y-2 border-2 border-foreground p-4">
+              <div className="flex items-start justify-between gap-3">
+                <p className="min-w-0 font-display text-sm font-bold uppercase break-words">{p.name}</p>
+                <div className="flex shrink-0 gap-3 text-muted-foreground">
+                  <button onClick={() => openEdit(p)} aria-label="Editar" className="hover:text-foreground"><Pencil className="size-4" /></button>
+                  <button onClick={() => remove(p)} aria-label="Eliminar" className="hover:text-destructive"><Trash2 className="size-4" /></button>
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                <span className="font-display text-base font-black tabular-nums text-foreground">
+                  {p.type === 'percentage' ? `${p.value}%` : formatPrice(p.value)}
+                </span>
+                <span>
+                  {p.endsAt ? `hasta ${format(new Date(p.endsAt), 'd MMM yyyy', { locale: es })}` : 'Sin límite'}
+                </span>
+                <button onClick={() => toggle(p)} disabled={pending}
+                  className={`border-2 border-foreground px-2 py-0.5 text-[0.65rem] font-bold uppercase ${p.isActive ? 'bg-foreground text-background' : ''}`}>
+                  {p.isActive ? 'Activa' : 'Inactiva'}
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Escritorio: tabla completa */}
+      <div className="hidden overflow-x-auto border-2 border-foreground md:block">
         <table className="w-full text-sm">
           <thead className="border-b-2 border-foreground bg-secondary/40 text-left">
             <tr className="[&>th]:px-4 [&>th]:py-3 [&>th]:font-display [&>th]:text-xs [&>th]:font-bold [&>th]:uppercase [&>th]:tracking-wider">

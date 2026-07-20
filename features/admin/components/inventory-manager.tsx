@@ -39,7 +39,57 @@ export function InventoryManager({ rows }: { rows: InventoryRowView[] }) {
         </p>
       </div>
 
-      <div className="overflow-x-auto border-2 border-foreground">
+      {/* Móvil: tarjetas apiladas (la tabla no cabe sin alejar la pantalla) */}
+      <ul className="space-y-3 md:hidden">
+        {rows.map((r) => {
+          const out = r.available <= 0;
+          const low = !out && r.available <= r.threshold;
+          return (
+            <li key={r.variantId} className="space-y-3 border-2 border-foreground p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-display text-sm font-bold uppercase break-words">
+                    {r.productName}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground break-all">{r.sku}</p>
+                  <p className="text-xs text-muted-foreground">{r.label}</p>
+                </div>
+                <span
+                  className={cn(
+                    'shrink-0 border-2 border-foreground px-2 py-0.5 text-[0.65rem] font-bold uppercase',
+                    out && 'bg-foreground text-background',
+                  )}
+                >
+                  {out ? 'Agotado' : low ? 'Bajo' : 'OK'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-sm">
+                  Stock:{' '}
+                  <span className="font-display text-lg font-black tabular-nums">{r.available}</span>
+                </span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    value={deltas[r.variantId] ?? ''}
+                    onChange={(e) => setDeltas((d) => ({ ...d, [r.variantId]: e.target.value }))}
+                    placeholder="±"
+                    aria-label={`Ajustar stock de ${r.sku}`}
+                    className="h-9 w-16 border-2 border-input bg-transparent px-2 text-sm outline-none focus:border-foreground"
+                  />
+                  <Button size="sm" variant="outline" disabled={pending} onClick={() => apply(r.variantId)}>
+                    Aplicar
+                  </Button>
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+
+      {/* Escritorio: tabla completa */}
+      <div className="hidden overflow-x-auto border-2 border-foreground md:block">
         <table className="w-full text-sm">
           <thead className="border-b-2 border-foreground bg-secondary/40 text-left">
             <tr className="[&>th]:px-4 [&>th]:py-3 [&>th]:font-display [&>th]:text-xs [&>th]:font-bold [&>th]:uppercase [&>th]:tracking-wider">

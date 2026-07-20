@@ -197,7 +197,46 @@ export function ProductsManager({
         </Button>
       </div>
 
-      <div className="overflow-x-auto border-2 border-foreground">
+      {/* Móvil: tarjetas apiladas */}
+      <ul className="space-y-3 md:hidden">
+        {rows.map((p) => (
+          <li key={p.id} className="space-y-3 border-2 border-foreground p-4">
+            <div className="flex items-start justify-between gap-3">
+              <p className="min-w-0 font-display text-sm font-bold uppercase break-words">
+                {p.name}
+                {p.isFeatured && <span className="ml-2 text-[0.6rem] text-muted-foreground">★</span>}
+              </p>
+              <span className="shrink-0 border-2 border-foreground px-2 py-0.5 text-[0.65rem] font-bold uppercase">
+                {p.status}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <div className="text-xs text-muted-foreground">
+                <span className="tabular-nums">
+                  {p.variants.length} var · {p.variants.reduce((s, v) => s + v.quantity, 0)} u.
+                </span>
+                <span className="ml-2 font-display text-base font-black tabular-nums text-foreground">
+                  {formatPrice(p.price)}
+                </span>
+              </div>
+              <div className="flex shrink-0 gap-3 text-muted-foreground">
+                <Link href={`/producto/${p.slug}`} aria-label="Ver" className="hover:text-foreground">
+                  <ExternalLink className="size-4" />
+                </Link>
+                <button onClick={() => openEdit(p)} aria-label="Editar" className="hover:text-foreground">
+                  <Pencil className="size-4" />
+                </button>
+                <button onClick={() => remove(p)} aria-label="Eliminar" className="hover:text-destructive">
+                  <Trash2 className="size-4" />
+                </button>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {/* Escritorio: tabla completa */}
+      <div className="hidden overflow-x-auto border-2 border-foreground md:block">
         <table className="w-full text-sm">
           <thead className="border-b-2 border-foreground bg-secondary/40 text-left">
             <tr className="[&>th]:px-4 [&>th]:py-3 [&>th]:font-display [&>th]:text-xs [&>th]:font-bold [&>th]:uppercase [&>th]:tracking-wider">
