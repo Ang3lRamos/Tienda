@@ -7,6 +7,7 @@ import { checkoutSchema } from '@/schemas/checkout';
 import { getStoreSettings, computeTotals } from '@/features/settings/queries';
 import { getVariantsForCheckout, validateCoupon } from './queries';
 import { getPaymentProvider } from '@/services/payments';
+import { sendOrderConfirmation } from '@/services/email/notifications';
 import { siteConfig } from '@/config/site';
 
 export interface CreateOrderResult {
@@ -142,6 +143,7 @@ export async function createOrderAction(input: unknown): Promise<CreateOrderResu
   // 6) Pago (proveedor desacoplado). Puede devolver una URL de redirección
   //    (pasarelas externas como Addi) o resolverse en el acto (contra entrega).
   let redirectTo = `/pedido/${orderNumber}`;
+  let awaitingExternalPayment = false;
   try {
     const payment = await getPaymentProvider(paymentMethod).createPayment({
       orderNumber,
@@ -175,7 +177,10 @@ export async function createOrderAction(input: unknown): Promise<CreateOrderResu
       } as never)
       .match({ id: orderId });
 
-    if (payment.redirectUrl) redirectTo = payment.redirectUrl;
+    if (payment.redirectUrl) {
+      redirectTo = payment.redirectUrl;
+      awaitingExternalPayment = true;
+    }
   } catch (err) {
     // Si la pasarela falla, revertimos: reponemos stock y eliminamos el pedido
     // para no dejar inventario descontado ni pedidos huérfanos.
@@ -192,6 +197,37 @@ export async function createOrderAction(input: unknown): Promise<CreateOrderResu
     await admin.from('orders').delete().match({ id: orderId });
     const message = err instanceof Error ? err.message : 'Error al iniciar el pago.';
     return { error: `No fue posible iniciar el pago: ${message}` };
+  }
+
+  // 7) Confirmación por correo (best-effort: nunca bloquea la compra).
+  //    Si el pago se resuelve en una pasarela externa, el aviso lo dispara su
+  //    webhook al aprobarse, para no confirmar un pedido que aún puede caerse.
+  //    Va antes del redirect() porque este lanza una excepción de control.
+  if (!awaitingExternalPayment && user.email) {
+    await sendOrderConfirmation({
+      to: user.email,
+      orderNumber,
+      recipientName: address.recipient,
+      items: orderItems.map((oi) => ({
+        productName: oi.productName,
+        label: oi.label,
+        quantity: oi.quantity,
+        unitPrice: oi.unitPrice,
+        lineTotal: oi.lineTotal,
+      })),
+      subtotal,
+      discount,
+      shipping,
+      tax,
+      grandTotal,
+      paymentMethod,
+      shippingAddress: {
+        line1: address.line1,
+        line2: address.line2 ?? null,
+        city: address.city,
+        state: address.state ?? null,
+      },
+    });
   }
 
   revalidatePath('/account/pedidos');

@@ -78,7 +78,8 @@ Cada módulo se entrega **completo y funcional** antes de avanzar. Estado:
 - ✅ Promociones: lista + activar/desactivar
 - ✅ Dashboard de IA: conversaciones, mensajes, productos más consultados
 - ✅ Configuración (base). Verificado: consultas válidas + rutas protegidas
-- ⬜ Gestión de variantes/imágenes por UI y creación de promos/cupones (pendiente)
+- ✅ Gestión de variantes/imágenes por UI y creación de promos/cupones
+  (completado en post-lanzamiento, ver abajo)
 
 ## Fase 9 — Pulido y producción ✅
 - ✅ SEO: `sitemap.ts` dinámico (productos/categorías), `robots.ts`,
@@ -132,6 +133,55 @@ Cada módulo se entrega **completo y funcional** antes de avanzar. Estado:
   marca, categoría, género, valoración, stock, colores y tallas), con la
   selección persistida y resaltado del más barato y el mejor valorado.
 
-Pendientes menores (mejoras futuras, no bloquean producción):
+- ✅ Configuración de la tienda editable desde `/admin/configuracion` (envío,
+  umbral de envío gratis, impuestos, datos de contacto, anuncio de la barra
+  superior). Migración `0005_settings.sql` — tabla singleton `store_settings`
+  con lectura pública y escritura sólo admin. El checkout recalcula siempre en
+  servidor; si la migración no se ha corrido, se usan valores por defecto.
 
-- Configuración editable del admin (envíos, impuestos) — hoy es de solo lectura
+### Pendientes detectados en la revisión (2026-07-20)
+
+Bloqueantes para abrir al público:
+
+- ✅ **Páginas de contenido del footer** (ya no hay enlaces rotos): `/ayuda/envios`
+  (lee el costo y el umbral de envío gratis de `store_settings`, así que nunca
+  contradice al checkout), `/ayuda/devoluciones`, `/ayuda/tallas` (tablas con el
+  patrón responsive tarjetas-móvil/tabla-escritorio), `/sobre-nosotros`,
+  `/sostenibilidad`, `/contacto` (usa el correo/teléfono del panel) y `/empleo`.
+  Maqueta común en `components/shared/content-page.tsx`.
+- ✅ **Páginas legales**: `/legal/terminos`, `/legal/privacidad` y
+  `/legal/tratamiento-datos` (Ley 1581 de 2012 y Estatuto del Consumidor).
+  Enlazadas en la barra inferior del footer y añadidas al `sitemap.ts`.
+  ⚠️ **Son una plantilla de partida**: hay que completar `config/legal.ts`
+  (razón social, NIT, domicilio, ciudad) y someterlas a revisión legal. Mientras
+  falten datos, las tres páginas muestran un aviso visible de "documento sin
+  finalizar".
+- ✅ **Correos transaccionales**: capa desacoplada en `services/email` con el
+  mismo patrón que `services/payments` (interfaz `EmailProvider` + registro;
+  proveedor Resend sobre su API REST, sin dependencias nuevas).
+  - Plantillas HTML con tablas y estilos en línea (`templates.ts`):
+    confirmación de pedido (resumen, totales, dirección) y cambio de estado
+    (`processing`, `shipped`, `delivered`, `cancelled`, `refunded`).
+  - Enganches: `createOrderAction` (confirmación tras crear el pedido),
+    `updateOrderStatus` del panel (aviso de cambio de estado) y el webhook de
+    Addi (confirma al aprobarse el pago; avisa de cancelación si se rechaza).
+  - **Best-effort por diseño**: `sendEmail` nunca lanza. Sin `RESEND_API_KEY`
+    los envíos se omiten y se registran, y la tienda opera igual.
+  - Env: `RESEND_API_KEY`, `EMAIL_FROM` (dominio verificado en Resend) y
+    `EMAIL_REPLY_TO` (opcional).
+  - Verificado: plantillas renderizadas (totales y descuento correctos, envío
+    gratis), degradación sin proveedor, y que la consulta `orders → profiles`
+    resuelve y los perfiles tienen correo. **Falta un envío real end-to-end**:
+    requiere credenciales de Resend y un pedido de prueba.
+
+No bloqueantes:
+
+- ⬜ Redes sociales del footer apuntan a `#`.
+- ⬜ Compra como invitado: la página de checkout se puede abrir sin sesión,
+  pero `createOrderAction` la exige. Conviene redirigir antes de que el
+  usuario rellene el formulario, o habilitar compra sin cuenta.
+- ⬜ Sin tests automatizados (ni unitarios ni E2E); la verificación es manual
+  con Playwright instalado temporalmente.
+- ⬜ Addi: el mapeo de endpoints/campos no está probado contra el entorno real.
+- ⬜ `NEXT_PUBLIC_SITE_URL` apunta a una URL de deploy con hash; debe ser el
+  dominio estable (afecta a `emailRedirectTo`, callbacks de Addi, sitemap y OG).

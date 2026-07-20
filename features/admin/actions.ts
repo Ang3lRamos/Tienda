@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { createServerSupabase, createAdminSupabase } from '@/lib/supabase/server';
 import { slugify } from '@/lib/utils';
 import { storeSettingsSchema } from '@/schemas/settings';
+import { notifyOrderStatusChange } from '@/services/email/notifications';
 
 type Result = { error?: string; success?: boolean };
 
@@ -30,7 +31,12 @@ export async function updateOrderStatus(orderNumber: string, status: string): Pr
     .update({ status } as never)
     .eq('order_number', orderNumber);
   if (error) return { error: 'No fue posible actualizar el pedido.' };
+
+  // Aviso al comprador (best-effort: si el correo falla, el cambio ya se guardó).
+  await notifyOrderStatusChange(orderNumber, status);
+
   revalidatePath('/admin/pedidos');
+  revalidatePath(`/admin/pedidos/${orderNumber}`);
   return { success: true };
 }
 

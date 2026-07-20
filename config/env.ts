@@ -29,6 +29,15 @@ const serverSchema = z.object({
   ADDI_ALLY_SLUG: z.string().min(1).optional(),
   /** Secreto compartido para validar los webhooks entrantes de Addi. */
   ADDI_WEBHOOK_SECRET: z.string().min(1).optional(),
+
+  // --- Correo transaccional. Sin `RESEND_API_KEY` la tienda funciona igual,
+  // simplemente no se envían notificaciones (los envíos se omiten y se
+  // registran en consola). ---
+  RESEND_API_KEY: z.string().min(1).optional(),
+  /** Remitente, con dominio verificado en el proveedor. Ej: "Átelier <pedidos@tudominio.com>". */
+  EMAIL_FROM: z.string().min(1).optional(),
+  /** Dirección a la que responden los clientes (opcional). */
+  EMAIL_REPLY_TO: z.string().email().optional(),
 });
 
 export const publicEnv = publicSchema.parse({
@@ -52,5 +61,8 @@ export function getServerEnv() {
     ADDI_API_URL: process.env.ADDI_API_URL,
     ADDI_ALLY_SLUG: process.env.ADDI_ALLY_SLUG,
     ADDI_WEBHOOK_SECRET: process.env.ADDI_WEBHOOK_SECRET,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    EMAIL_FROM: process.env.EMAIL_FROM,
+    EMAIL_REPLY_TO: process.env.EMAIL_REPLY_TO,
   });
 }

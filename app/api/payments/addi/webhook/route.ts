@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { createAdminSupabase } from '@/lib/supabase/server';
 import { getServerEnv } from '@/config/env';
+import {
+  sendOrderConfirmationByNumber,
+  notifyOrderStatusChange,
+} from '@/services/email/notifications';
 
 /**
  * Webhook de Addi. Recibe la notificación del resultado de la solicitud de
@@ -87,6 +91,10 @@ export async function POST(req: Request) {
         payment_reference: applicationId ?? undefined,
       } as never)
       .match({ id: order.id });
+
+    // Ahora sí es un pedido en firme: se confirma por correo (el checkout no lo
+    // hizo porque el pago quedó en manos de la pasarela).
+    await sendOrderConfirmationByNumber(order.order_number);
   } else if (status === 'rejected') {
     await admin
       .from('orders')
@@ -108,6 +116,8 @@ export async function POST(req: Request) {
         p_reference: order.order_number,
       });
     }
+
+    await notifyOrderStatusChange(order.order_number, 'cancelled');
   }
 
   return NextResponse.json({ ok: true, status });
