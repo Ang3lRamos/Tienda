@@ -107,6 +107,26 @@ Cada módulo se entrega **completo y funcional** antes de avanzar. Estado:
 - ✅ Sincronización carrito/wishlist con Supabase: fusión al iniciar sesión +
   guardado con debounce; persisten entre dispositivos (verificado E2E)
 
+- ✅ Cuenta de usuario completa: edición de perfil (nombre/teléfono), CRUD de
+  direcciones (predeterminada) y su uso en el checkout, cancelación de pedidos
+  (con reposición de stock), y estados de pedido/pago en español (helper
+  compartido en `lib/utils`).
+
+- ✅ Reseñas: los compradores pueden opinar/editar su reseña (verificación de
+  compra) y el panel las modera (`/admin/resenas`: aprobar/ocultar/eliminar).
+
+- ✅ Admin: detalle de pedido (`/admin/pedidos/[orderNumber]` con artículos,
+  cliente, envío y totales) y estados en español en las tablas.
+
+- ✅ Pago con **Addi** (BNPL Colombia): capa `services/payments` con proveedor
+  Addi (OAuth2 client_credentials + Web Checkout con redirección), webhook
+  `/api/payments/addi/webhook` (aprueba/rechaza + repone stock), selector en el
+  checkout y retorno en `/pedido/[n]?addi=`. Migración `0004_payments.sql`
+  (columnas `payment_method`/`payment_reference`/`payment_provider` en orders).
+  Requiere correr `0004` en Supabase y definir las variables `ADDI_*`; los
+  endpoints/campos exactos los entrega Addi en el onboarding (sandbox por
+  defecto). Sin credenciales, el checkout sigue operando con "contra entrega".
+
 Pendientes menores (mejoras futuras, no bloquean producción):
-- Integración real de pasarela de pagos (estructura ya lista)
 - Comparador de productos
+- Configuración editable del admin (envíos, impuestos) — hoy es de solo lectura
