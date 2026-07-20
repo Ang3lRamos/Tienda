@@ -11,6 +11,17 @@ export const siteConfig = {
   currency: 'COP',
 } as const;
 
+/**
+ * Perfiles sociales. Deja en `null` los que no tengas: el footer sólo pinta
+ * los que estén definidos, en vez de mostrar un icono que no lleva a ninguna
+ * parte. Si no hay ninguno, la columna entera desaparece.
+ */
+export const socialLinks = {
+  instagram: null as string | null,
+  facebook: null as string | null,
+  twitter: null as string | null,
+} satisfies Record<string, string | null>;
+
 /** Navegación principal de la tienda. */
 export const mainNav = [
   { title: 'Novedades', href: '/catalogo?sort=nuevos' },

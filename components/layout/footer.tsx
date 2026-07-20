@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Instagram, Facebook, Twitter } from 'lucide-react';
 import { NewsletterForm } from './newsletter-form';
-import { siteConfig } from '@/config/site';
+import { siteConfig, socialLinks } from '@/config/site';
 
 const footerNav = [
   {
@@ -32,6 +32,15 @@ const footerNav = [
     ],
   },
 ];
+
+/** Sólo las redes realmente configuradas en `config/site.ts`. */
+const social = (
+  [
+    { label: 'Instagram', href: socialLinks.instagram, Icon: Instagram },
+    { label: 'Facebook', href: socialLinks.facebook, Icon: Facebook },
+    { label: 'Twitter', href: socialLinks.twitter, Icon: Twitter },
+  ] as const
+).filter((s): s is typeof s & { href: string } => Boolean(s.href));
 
 const legalNav = [
   { label: 'Términos y condiciones', href: '/legal/terminos' },
@@ -79,22 +88,27 @@ export function Footer() {
               </ul>
             </nav>
           ))}
-          <div className="space-y-4">
-            <h3 className="font-display text-xs font-bold tracking-[0.2em] text-background/50 uppercase">
-              Síguenos
-            </h3>
-            <div className="flex items-center gap-3">
-              <Link href="#" aria-label="Instagram" className="text-background/80 hover:text-background">
-                <Instagram className="size-5" />
-              </Link>
-              <Link href="#" aria-label="Facebook" className="text-background/80 hover:text-background">
-                <Facebook className="size-5" />
-              </Link>
-              <Link href="#" aria-label="Twitter" className="text-background/80 hover:text-background">
-                <Twitter className="size-5" />
-              </Link>
+          {social.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="font-display text-xs font-bold tracking-[0.2em] text-background/50 uppercase">
+                Síguenos
+              </h3>
+              <div className="flex items-center gap-3">
+                {social.map(({ label, href, Icon }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    aria-label={label}
+                    target="_blank"
+                    rel="noopener noreferrer me"
+                    className="text-background/80 transition-colors hover:text-background"
+                  >
+                    <Icon className="size-5" />
+                  </a>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Wordmark gigante */}

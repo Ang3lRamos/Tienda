@@ -67,12 +67,20 @@ export async function POST(req: Request) {
   const admin = createAdminSupabase();
 
   // Localizar el pedido por número o por la referencia de pago (applicationId).
-  const query = admin.from('orders').select('id, order_number, status, payment_status');
+  const query = admin
+    .from('orders')
+    .select('id, order_number, status, payment_status, coupon_id');
   const { data } = orderNumber
     ? await query.eq('order_number', orderNumber).maybeSingle()
     : await query.eq('payment_reference', applicationId as string).maybeSingle();
 
-  const order = data as { id: string; order_number: string; status: string; payment_status: string } | null;
+  const order = data as {
+    id: string;
+    order_number: string;
+    status: string;
+    payment_status: string;
+    coupon_id: string | null;
+  } | null;
   if (!order) {
     return NextResponse.json({ error: 'Pedido no encontrado' }, { status: 404 });
   }
@@ -100,6 +108,9 @@ export async function POST(req: Request) {
       .from('orders')
       .update({ payment_status: 'failed', status: 'cancelled' } as never)
       .match({ id: order.id });
+
+    // Devolver el canje del cupón: el pago se rechazó, no hay venta.
+    if (order.coupon_id) await admin.rpc('release_coupon', { p_coupon_id: order.coupon_id });
 
     // Reponer el stock reservado al crear el pedido.
     const { data: items } = await admin

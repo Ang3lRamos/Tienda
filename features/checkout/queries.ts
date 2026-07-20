@@ -135,6 +135,30 @@ export interface ValidCoupon {
   type: DiscountType;
   value: number;
   minPurchase: number;
+  /** Máximo de pedidos con este cupón por usuario (null = sin límite). */
+  perUserLimit: number | null;
+}
+
+/**
+ * Comprueba si al usuario le queda cupo de este cupón. No hay tabla de
+ * canjes: se cuentan sus pedidos con ese cupón, descartando los cancelados
+ * para no penalizar una compra que nunca llegó a existir.
+ */
+export async function hasCouponQuotaLeft(
+  couponId: string,
+  userId: string,
+  perUserLimit: number | null,
+): Promise<boolean> {
+  if (perUserLimit == null) return true;
+
+  const supabase = await createServerSupabase();
+  const { count } = await supabase
+    .from('orders')
+    .select('id', { count: 'exact', head: true })
+    .match({ coupon_id: couponId, user_id: userId })
+    .neq('status', 'cancelled');
+
+  return (count ?? 0) < perUserLimit;
 }
 
 /** Valida un cupón por código (activo y dentro de su ventana de fechas). */
@@ -142,7 +166,9 @@ export async function validateCoupon(code: string): Promise<ValidCoupon | null> 
   const supabase = await createServerSupabase();
   const { data } = await supabase
     .from('coupons')
-    .select('id, code, type, value, min_purchase, max_uses, used_count, starts_at, ends_at, is_active')
+    .select(
+      'id, code, type, value, min_purchase, max_uses, used_count, per_user_limit, starts_at, ends_at, is_active',
+    )
     .eq('code', code.toUpperCase())
     .maybeSingle();
 
@@ -154,6 +180,7 @@ export async function validateCoupon(code: string): Promise<ValidCoupon | null> 
     min_purchase: number;
     max_uses: number | null;
     used_count: number;
+    per_user_limit: number | null;
     starts_at: string | null;
     ends_at: string | null;
     is_active: boolean;
@@ -165,5 +192,12 @@ export async function validateCoupon(code: string): Promise<ValidCoupon | null> 
   if (c.ends_at && new Date(c.ends_at).getTime() < now) return null;
   if (c.max_uses != null && c.used_count >= c.max_uses) return null;
 
-  return { id: c.id, code: c.code, type: c.type, value: c.value, minPurchase: c.min_purchase };
+  return {
+    id: c.id,
+    code: c.code,
+    type: c.type,
+    value: c.value,
+    minPurchase: c.min_purchase,
+    perUserLimit: c.per_user_limit,
+  };
 }

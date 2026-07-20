@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { createServerSupabase, createAdminSupabase } from '@/lib/supabase/server';
 import { checkoutSchema } from '@/schemas/checkout';
 import { getStoreSettings, computeTotals } from '@/features/settings/queries';
-import { getVariantsForCheckout, validateCoupon } from './queries';
+import { getVariantsForCheckout, validateCoupon, hasCouponQuotaLeft } from './queries';
 import { getPaymentProvider } from '@/services/payments';
 import { sendOrderConfirmation } from '@/services/email/notifications';
 import { siteConfig } from '@/config/site';
@@ -74,6 +74,9 @@ export async function createOrderAction(input: unknown): Promise<CreateOrderResu
     if (subtotal < coupon.minPurchase) {
       return { error: 'La compra no alcanza el mínimo para este cupón.' };
     }
+    if (!(await hasCouponQuotaLeft(coupon.id, user.id, coupon.perUserLimit))) {
+      return { error: 'Ya usaste este cupón.' };
+    }
     discount =
       coupon.type === 'percentage'
         ? Math.round((subtotal * coupon.value) / 100)
@@ -115,6 +118,26 @@ export async function createOrderAction(input: unknown): Promise<CreateOrderResu
 
   if (orderErr || !order) return { error: 'No fue posible crear el pedido. Inténtalo de nuevo.' };
   const orderId = (order as { id: string }).id;
+
+  // Canje atómico del cupón: la RPC revalida el tope dentro del propio UPDATE,
+  // así que si otra compra simultánea lo agotó justo ahora, se rechaza en vez
+  // de superar el máximo. Se deshace todo el pedido si eso ocurre.
+  //
+  // Si la migración 0006 aún no se ha corrido, la función no existe: en ese
+  // caso se deja pasar la compra sin canjear (el tope de usos queda inactivo
+  // hasta aplicar la migración), igual que la tienda opera sin 0005.
+  if (couponId) {
+    const { data: redeemed, error: redeemErr } = await admin.rpc('redeem_coupon', {
+      p_coupon_id: couponId,
+    });
+    const migrationMissing = redeemErr?.code === 'PGRST202';
+    if (migrationMissing) {
+      console.warn('[checkout] redeem_coupon no existe; aplica la migración 0006. Canje omitido.');
+    } else if (redeemErr || !redeemed) {
+      await admin.from('orders').delete().match({ id: orderId });
+      return { error: 'El cupón se agotó. Vuelve a intentarlo sin él.' };
+    }
+  }
 
   const itemsPayload = orderItems.map((oi) => ({
     order_id: orderId,
@@ -194,6 +217,8 @@ export async function createOrderAction(input: unknown): Promise<CreateOrderResu
         p_actor: user.id,
       });
     }
+    // Devolver el canje: el cupón no debe quedar consumido sin venta detrás.
+    if (couponId) await admin.rpc('release_coupon', { p_coupon_id: couponId });
     await admin.from('orders').delete().match({ id: orderId });
     const message = err instanceof Error ? err.message : 'Error al iniciar el pago.';
     return { error: `No fue posible iniciar el pago: ${message}` };
@@ -245,7 +270,7 @@ export async function cancelOrderAction(orderNumber: string): Promise<{ error?: 
   // RLS: el usuario solo puede leer sus propios pedidos.
   const { data } = await supabase
     .from('orders')
-    .select('id, status, user_id, order_items(variant_id, quantity)')
+    .select('id, status, user_id, coupon_id, order_items(variant_id, quantity)')
     .eq('order_number', orderNumber)
     .maybeSingle();
 
@@ -253,6 +278,7 @@ export async function cancelOrderAction(orderNumber: string): Promise<{ error?: 
     id: string;
     status: string;
     user_id: string;
+    coupon_id: string | null;
     order_items: { variant_id: string | null; quantity: number }[];
   } | null;
 
@@ -267,6 +293,9 @@ export async function cancelOrderAction(orderNumber: string): Promise<{ error?: 
     .update({ status: 'cancelled', payment_status: 'failed' } as never)
     .match({ id: order.id });
   if (updErr) return { error: 'No fue posible cancelar el pedido.' };
+
+  // Devolver el canje del cupón para que el usuario recupere su cupo.
+  if (order.coupon_id) await admin.rpc('release_coupon', { p_coupon_id: order.coupon_id });
 
   // Reponer el stock descontado en la compra.
   for (const it of order.order_items ?? []) {

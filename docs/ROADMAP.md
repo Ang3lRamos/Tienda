@@ -176,7 +176,21 @@ Bloqueantes para abrir al público:
 
 No bloqueantes:
 
-- ⬜ Redes sociales del footer apuntan a `#`.
+- ✅ Redes sociales del footer: se acabaron los `href="#"`. `config/site.ts`
+  tiene `socialLinks` (todas en `null` por ahora); el footer sólo pinta las
+  redes definidas y, si no hay ninguna, oculta la columna "Síguenos". Los
+  iconos abren en pestaña nueva con `rel="noopener noreferrer me"`.
+- ✅ Canje de cupones real (migración `0006_coupon_redemption.sql`, **el
+  usuario debe correrla**). `used_count` no se incrementaba en ningún sitio,
+  así que `max_uses` y `per_user_limit` eran decorativos. Ahora: RPC
+  `redeem_coupon` (incremento atómico que revalida el tope dentro del propio
+  UPDATE) al crear el pedido, `release_coupon` al deshacerlo (pago fallido,
+  rechazo de Addi, cancelación del usuario), y `hasCouponQuotaLeft` comprueba
+  el límite por usuario contando sus pedidos no cancelados. Si la migración
+  aún no está aplicada, el checkout detecta `PGRST202` y deja pasar la compra
+  sin canjear (fail-safe, igual que la tienda opera sin 0005). El cupón
+  `BIENVENIDO10` quedó acotado: caduca 2026-10-20, máx. 200 usos, 1 por
+  usuario. Cubierto por `tests/coupon.test.ts`.
 - ⬜ Compra como invitado: hoy hay que tener cuenta. El flujo es correcto
   (el middleware redirige a `/login?redirect=/checkout` y tras entrar se
   vuelve al checkout), así que esto es una decisión de producto, no un fallo.

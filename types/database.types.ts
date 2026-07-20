@@ -375,6 +375,8 @@ export type Database = {
         };
         Returns: InventoryRow;
       };
+      redeem_coupon: { Args: { p_coupon_id: string }; Returns: boolean };
+      release_coupon: { Args: { p_coupon_id: string }; Returns: undefined };
     };
     Enums: {
       product_status: ProductStatus;
