@@ -4,6 +4,7 @@ import { ImageIcon } from 'lucide-react';
 import { Price } from './price';
 import { StockBadge } from './stock-badge';
 import { FavoriteButton } from './favorite-button';
+import { CompareButton } from '@/features/compare/components/compare-button';
 import { cn, discountPercent } from '@/lib/utils';
 import type { ProductSummary } from '@/types/product';
 
@@ -58,8 +59,9 @@ export function ProductCard({
               </span>
             )}
           </div>
-          <div className="pointer-events-auto opacity-0 transition-opacity group-hover:opacity-100">
+          <div className="pointer-events-auto flex flex-col gap-1.5 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100">
             <FavoriteButton product={product} />
+            <CompareButton product={product} />
           </div>
         </div>
 

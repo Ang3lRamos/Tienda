@@ -42,8 +42,8 @@ Cada módulo se entrega **completo y funcional** antes de avanzar. Estado:
 - ✅ Wishlist/favoritos reales (store persistido) + /favoritos + cuenta
 - ✅ Vistos recientemente (store) en la página de producto
 - ✅ Newsletter funcional (insert en `newsletter_subscribers` vía Server Action)
-- ⬜ Sincronización carrito/wishlist con Supabase (se hará junto al checkout)
-- ⬜ Comparador de productos (pendiente)
+- ✅ Sincronización carrito/wishlist con Supabase (ver post-lanzamiento)
+- ✅ Comparador de productos (ver post-lanzamiento)
 
 ## Fase 5 — Landing page ✅
 - ✅ Hero full-bleed, marquee, categorías, nueva colección, más vendidos,
@@ -127,6 +127,11 @@ Cada módulo se entrega **completo y funcional** antes de avanzar. Estado:
   endpoints/campos exactos los entrega Addi en el onboarding (sandbox por
   defecto). Sin credenciales, el checkout sigue operando con "contra entrega".
 
+- ✅ Comparador de productos: selección desde tarjeta y ficha (máx. 4), barra
+  flotante con los elegidos y tabla comparativa en /comparar (precio, descuento,
+  marca, categoría, género, valoración, stock, colores y tallas), con la
+  selección persistida y resaltado del más barato y el mejor valorado.
+
 Pendientes menores (mejoras futuras, no bloquean producción):
-- Comparador de productos
+
 - Configuración editable del admin (envíos, impuestos) — hoy es de solo lectura

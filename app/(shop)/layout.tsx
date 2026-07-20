@@ -3,6 +3,7 @@ import { ConditionalFooter } from '@/components/layout/conditional-footer';
 import { CartDrawer } from '@/components/layout/cart-drawer';
 import { AccountSync } from '@/features/sync/components/account-sync';
 import { ChatWidget } from '@/features/chatbot/components/chat-widget';
+import { CompareBar } from '@/features/compare/components/compare-bar';
 import { createServerSupabase } from '@/lib/supabase/server';
 
 /** Layout de la tienda pública: navbar fija + contenido + footer. */
@@ -30,6 +31,7 @@ export default async function ShopLayout({
       </main>
       <ConditionalFooter />
       <CartDrawer />
+      <CompareBar />
       <ChatWidget />
       <AccountSync isAuthed={!!user} />
     </div>

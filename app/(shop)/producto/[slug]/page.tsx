@@ -8,6 +8,7 @@ import {
 } from '@/features/catalog/queries';
 import { getReviewEligibility } from '@/features/reviews/queries';
 import { ReviewForm } from '@/features/reviews/components/review-form';
+import { CompareButton } from '@/features/compare/components/compare-button';
 import { ProductGallery } from '@/features/catalog/components/product-gallery';
 import { ProductPurchase } from '@/features/catalog/components/product-purchase';
 import { TrackRecentlyViewed } from '@/features/catalog/components/track-recently-viewed';
@@ -109,6 +110,10 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
 
           <div className="mt-8">
             <ProductPurchase product={product} />
+          </div>
+
+          <div className="mt-4">
+            <CompareButton product={summary} variant="full" className="w-full sm:w-auto" />
           </div>
 
           {/* Descripción y detalles */}
