@@ -6,6 +6,8 @@ import {
   getRelatedProducts,
   getProductReviews,
 } from '@/features/catalog/queries';
+import { getReviewEligibility } from '@/features/reviews/queries';
+import { ReviewForm } from '@/features/reviews/components/review-form';
 import { ProductGallery } from '@/features/catalog/components/product-gallery';
 import { ProductPurchase } from '@/features/catalog/components/product-purchase';
 import { TrackRecentlyViewed } from '@/features/catalog/components/track-recently-viewed';
@@ -41,9 +43,10 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const [related, reviews] = await Promise.all([
+  const [related, reviews, reviewEligibility] = await Promise.all([
     getRelatedProducts(product.categorySlug, product.id),
     getProductReviews(product.id),
+    getReviewEligibility(product.id),
   ]);
 
   const summary: ProductSummary = {
@@ -149,6 +152,14 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
               <Rating value={product.ratingAvg} count={product.ratingCount} />
             </div>
           )}
+        </div>
+
+        <div className="mb-10">
+          <ReviewForm
+            productId={product.id}
+            productSlug={product.slug}
+            eligibility={reviewEligibility}
+          />
         </div>
 
         {reviews.length === 0 ? (

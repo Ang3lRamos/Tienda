@@ -392,3 +392,25 @@ export async function toggleCoupon(id: string, isActive: boolean): Promise<Resul
   revalidatePath('/admin/promociones');
   return { success: true };
 }
+
+/* ------------------------------- Reseñas ------------------------------ */
+export async function setReviewApproval(id: string, approved: boolean): Promise<Result> {
+  await assertStaff();
+  const admin = createAdminSupabase();
+  const { error } = await admin
+    .from('reviews')
+    .update({ is_approved: approved } as never)
+    .eq('id', id);
+  if (error) return { error: 'No fue posible actualizar la reseña.' };
+  revalidatePath('/admin/resenas');
+  return { success: true };
+}
+
+export async function deleteReview(id: string): Promise<Result> {
+  await assertStaff();
+  const admin = createAdminSupabase();
+  const { error } = await admin.from('reviews').delete().eq('id', id);
+  if (error) return { error: 'No fue posible eliminar la reseña.' };
+  revalidatePath('/admin/resenas');
+  return { success: true };
+}

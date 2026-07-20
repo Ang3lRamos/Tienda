@@ -28,6 +28,7 @@ export const adminNav = [
   { title: 'Marcas', href: '/admin/marcas', icon: 'Award' },
   { title: 'Inventario', href: '/admin/inventario', icon: 'Boxes' },
   { title: 'Pedidos', href: '/admin/pedidos', icon: 'ShoppingBag' },
+  { title: 'Reseñas', href: '/admin/resenas', icon: 'Star' },
   { title: 'Clientes', href: '/admin/clientes', icon: 'Users' },
   { title: 'Usuarios', href: '/admin/usuarios', icon: 'ShieldCheck' },
   { title: 'Promociones', href: '/admin/promociones', icon: 'Percent' },

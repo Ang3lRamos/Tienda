@@ -14,6 +14,7 @@ import {
   Percent,
   Sparkles,
   Settings,
+  Star,
   type LucideIcon,
 } from 'lucide-react';
 import { adminNav } from '@/config/site';
@@ -31,6 +32,7 @@ const icons: Record<string, LucideIcon> = {
   Percent,
   Sparkles,
   Settings,
+  Star,
 };
 
 export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
