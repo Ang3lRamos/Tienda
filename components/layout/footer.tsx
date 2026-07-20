@@ -33,6 +33,12 @@ const footerNav = [
   },
 ];
 
+const legalNav = [
+  { label: 'Términos y condiciones', href: '/legal/terminos' },
+  { label: 'Privacidad', href: '/legal/privacidad' },
+  { label: 'Tratamiento de datos', href: '/legal/tratamiento-datos' },
+];
+
 export function Footer() {
   return (
     <footer className="bg-foreground text-background">
@@ -102,11 +108,21 @@ export function Footer() {
           </span>
         </Link>
 
-        <div className="flex flex-col items-center justify-between gap-3 border-t border-background/20 pt-6 text-xs text-background/60 sm:flex-row">
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-background/20 pt-6 text-xs text-background/60 sm:flex-row">
           <p>
             © {new Date().getFullYear()} {siteConfig.name}. Todos los derechos reservados.
           </p>
-          <p className="tracking-wide uppercase">{siteConfig.tagline}</p>
+          <nav aria-label="Enlaces legales">
+            <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+              {legalNav.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="transition-colors hover:text-background">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
       </div>
     </footer>

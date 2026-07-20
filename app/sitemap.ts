@@ -21,6 +21,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: path === '' ? 1 : 0.7,
   }));
 
+  // Páginas de contenido: cambian poco y no compiten con el catálogo.
+  const contentRoutes: MetadataRoute.Sitemap = [
+    '/ayuda/envios',
+    '/ayuda/devoluciones',
+    '/ayuda/tallas',
+    '/sobre-nosotros',
+    '/sostenibilidad',
+    '/contacto',
+    '/empleo',
+    '/legal/terminos',
+    '/legal/privacidad',
+    '/legal/tratamiento-datos',
+  ].map((path) => ({
+    url: `${base}${path}`,
+    lastModified: new Date(),
+    changeFrequency: 'yearly' as const,
+    priority: 0.3,
+  }));
+
   let dynamicRoutes: MetadataRoute.Sitemap = [];
   try {
     const supabase = createPublicSupabase();
@@ -47,5 +66,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Si Supabase no está disponible en build, se sirve solo el sitemap estático.
   }
 
-  return [...staticRoutes, ...dynamicRoutes];
+  return [...staticRoutes, ...contentRoutes, ...dynamicRoutes];
 }
