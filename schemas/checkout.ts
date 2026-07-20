@@ -21,7 +21,7 @@ export const checkoutSchema = z.object({
   address: shippingAddressSchema,
   items: z.array(checkoutItemSchema).min(1, 'Tu carrito está vacío'),
   couponCode: z.string().trim().max(40).optional(),
-  paymentMethod: z.enum(['cod']).default('cod'),
+  paymentMethod: z.enum(['cod', 'addi']).default('cod'),
 });
 
 export type ShippingAddressInput = z.infer<typeof shippingAddressSchema>;

@@ -223,6 +223,9 @@ export type OrderRow = {
   order_number: string;
   status: OrderStatus;
   payment_status: PaymentStatus;
+  payment_method: string;
+  payment_reference: string | null;
+  payment_provider: string | null;
   subtotal: number;
   discount_total: number;
   shipping_total: number;

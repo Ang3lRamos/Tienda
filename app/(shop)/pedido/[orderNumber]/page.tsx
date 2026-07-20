@@ -4,19 +4,28 @@ import { redirect } from 'next/navigation';
 import { CheckCircle2 } from 'lucide-react';
 import { getOrderByNumber } from '@/features/checkout/queries';
 import { ClearCart } from '@/features/checkout/components/clear-cart';
+import { CancelOrderButton } from '@/features/checkout/components/cancel-order-button';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { createServerSupabase } from '@/lib/supabase/server';
-import { formatPrice } from '@/lib/utils';
+import {
+  formatPrice,
+  orderStatusLabel,
+  paymentStatusLabel,
+  isCancellableStatus,
+} from '@/lib/utils';
 
 export const metadata: Metadata = { title: 'Pedido confirmado', robots: { index: false } };
 
 export default async function OrderConfirmationPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ orderNumber: string }>;
+  searchParams: Promise<{ addi?: string }>;
 }) {
   const { orderNumber } = await params;
+  const { addi } = await searchParams;
 
   const supabase = await createServerSupabase();
   const {
@@ -49,12 +58,30 @@ export default async function OrderConfirmationPage({
         </p>
       </div>
 
+      {addi === 'approved' && (
+        <div className="mt-6 border-2 border-foreground p-4 text-center text-sm">
+          Tu crédito con <span className="font-bold">Addi</span> se está confirmando. Actualizaremos
+          el estado del pedido en cuanto Addi complete la aprobación.
+        </div>
+      )}
+      {addi === 'rejected' && (
+        <div className="mt-6 border-2 border-destructive p-4 text-center text-sm text-destructive">
+          Tu solicitud con <span className="font-bold">Addi</span> no se completó. Puedes intentar
+          otro método de pago desde el carrito.
+        </div>
+      )}
+
       <div className="mt-10 border-2 border-foreground p-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <h2 className="text-2xl">Resumen</h2>
-          <span className="border-2 border-foreground px-2 py-1 text-xs font-bold uppercase">
-            {order.status}
-          </span>
+          <div className="flex flex-wrap justify-end gap-2">
+            <span className="border-2 border-foreground px-2 py-1 text-xs font-bold uppercase">
+              {orderStatusLabel(order.status)}
+            </span>
+            <span className="border-2 border-border px-2 py-1 text-xs font-bold uppercase text-muted-foreground">
+              {paymentStatusLabel(order.paymentStatus)}
+            </span>
+          </div>
         </div>
         <Separator className="my-4" />
         <ul className="space-y-3">
@@ -98,6 +125,12 @@ export default async function OrderConfirmationPage({
           <Link href="/catalogo">Seguir comprando</Link>
         </Button>
       </div>
+
+      {isCancellableStatus(order.status) && (
+        <div className="mt-3 flex">
+          <CancelOrderButton orderNumber={order.orderNumber} />
+        </div>
+      )}
     </div>
   );
 }

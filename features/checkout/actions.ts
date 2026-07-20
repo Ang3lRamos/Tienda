@@ -91,15 +91,7 @@ export async function createOrderAction(input: unknown): Promise<CreateOrderResu
     .slice(2, 8)
     .toUpperCase()}`;
 
-  // 4) Pago (proveedor desacoplado)
-  const payment = await getPaymentProvider(paymentMethod).createPayment({
-    orderNumber,
-    amount: grandTotal,
-    currency: siteConfig.currency,
-    customerEmail: user.email,
-  });
-
-  // 5) Escrituras de servidor (admin: operación controlada tras autenticar)
+  // 4) Crear el pedido en estado pendiente (admin: operación controlada tras autenticar)
   const admin = createAdminSupabase();
 
   const { data: order, error: orderErr } = await admin
@@ -108,7 +100,8 @@ export async function createOrderAction(input: unknown): Promise<CreateOrderResu
       user_id: user.id,
       order_number: orderNumber,
       status: 'pending',
-      payment_status: payment.status,
+      payment_status: 'pending',
+      payment_method: paymentMethod,
       subtotal,
       discount_total: discount,
       shipping_total: shipping,
@@ -137,7 +130,7 @@ export async function createOrderAction(input: unknown): Promise<CreateOrderResu
   }));
   await admin.from('order_items').insert(itemsPayload as never);
 
-  // 6) Descontar stock de forma transaccional por variante
+  // 5) Descontar stock de forma transaccional por variante
   for (const oi of orderItems) {
     await admin.rpc('apply_inventory_movement', {
       p_variant_id: oi.variantId,
@@ -149,6 +142,112 @@ export async function createOrderAction(input: unknown): Promise<CreateOrderResu
     });
   }
 
+  // 6) Pago (proveedor desacoplado). Puede devolver una URL de redirección
+  //    (pasarelas externas como Addi) o resolverse en el acto (contra entrega).
+  let redirectTo = `/pedido/${orderNumber}`;
+  try {
+    const payment = await getPaymentProvider(paymentMethod).createPayment({
+      orderNumber,
+      amount: grandTotal,
+      currency: siteConfig.currency,
+      shippingAmount: shipping,
+      customer: { email: user.email, fullName: address.recipient, phone: address.phone },
+      items: orderItems.map((oi) => ({
+        sku: oi.sku,
+        name: oi.productName,
+        quantity: oi.quantity,
+        unitPrice: oi.unitPrice,
+      })),
+      shippingAddress: {
+        line1: address.line1,
+        line2: address.line2 ?? null,
+        city: address.city,
+        state: address.state ?? null,
+        country: address.country,
+      },
+      siteUrl: siteConfig.url,
+    });
+
+    await admin
+      .from('orders')
+      .update({
+        payment_status: payment.status,
+        payment_reference: payment.reference ?? null,
+        payment_provider: payment.provider ?? paymentMethod,
+      } as never)
+      .match({ id: orderId });
+
+    if (payment.redirectUrl) redirectTo = payment.redirectUrl;
+  } catch (err) {
+    // Si la pasarela falla, revertimos: reponemos stock y eliminamos el pedido
+    // para no dejar inventario descontado ni pedidos huérfanos.
+    for (const oi of orderItems) {
+      await admin.rpc('apply_inventory_movement', {
+        p_variant_id: oi.variantId,
+        p_type: 'in',
+        p_quantity: oi.quantity,
+        p_reason: 'pago_fallido',
+        p_reference: orderNumber,
+        p_actor: user.id,
+      });
+    }
+    await admin.from('orders').delete().match({ id: orderId });
+    const message = err instanceof Error ? err.message : 'Error al iniciar el pago.';
+    return { error: `No fue posible iniciar el pago: ${message}` };
+  }
+
   revalidatePath('/account/pedidos');
-  redirect(`/pedido/${orderNumber}`);
+  redirect(redirectTo);
+}
+
+/** Cancela un pedido del usuario (si está pendiente/en preparación) y repone stock. */
+export async function cancelOrderAction(orderNumber: string): Promise<{ error?: string; ok?: boolean }> {
+  const supabase = await createServerSupabase();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: 'Debes iniciar sesión.' };
+
+  // RLS: el usuario solo puede leer sus propios pedidos.
+  const { data } = await supabase
+    .from('orders')
+    .select('id, status, user_id, order_items(variant_id, quantity)')
+    .eq('order_number', orderNumber)
+    .maybeSingle();
+
+  const order = data as unknown as {
+    id: string;
+    status: string;
+    user_id: string;
+    order_items: { variant_id: string | null; quantity: number }[];
+  } | null;
+
+  if (!order || order.user_id !== user.id) return { error: 'Pedido no encontrado.' };
+  if (order.status !== 'pending' && order.status !== 'processing') {
+    return { error: 'Este pedido ya no se puede cancelar.' };
+  }
+
+  const admin = createAdminSupabase();
+  const { error: updErr } = await admin
+    .from('orders')
+    .update({ status: 'cancelled', payment_status: 'failed' } as never)
+    .match({ id: order.id });
+  if (updErr) return { error: 'No fue posible cancelar el pedido.' };
+
+  // Reponer el stock descontado en la compra.
+  for (const it of order.order_items ?? []) {
+    if (!it.variant_id) continue;
+    await admin.rpc('apply_inventory_movement', {
+      p_variant_id: it.variant_id,
+      p_type: 'in',
+      p_quantity: it.quantity,
+      p_reason: 'cancelacion',
+      p_reference: orderNumber,
+      p_actor: user.id,
+    });
+  }
+
+  revalidatePath('/account/pedidos');
+  revalidatePath(`/pedido/${orderNumber}`);
+  return { ok: true };
 }
