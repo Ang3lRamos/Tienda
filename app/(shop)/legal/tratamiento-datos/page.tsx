@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ContentPage, Prose } from '@/components/shared/content-page';
 import { LegalPendingNotice } from '@/components/shared/legal-pending-notice';
-import { legalConfig } from '@/config/legal';
+import { LEGAL_LAST_UPDATED, resolveLegalData } from '@/config/legal';
 import { siteConfig } from '@/config/site';
 import { getStoreSettings } from '@/features/settings/queries';
 
@@ -12,23 +12,24 @@ export const metadata: Metadata = {
 };
 
 export default async function TratamientoDatosPage() {
-  const { contactEmail } = await getStoreSettings();
-  const privacyEmail = legalConfig.privacyEmail ?? contactEmail;
+  const settings = await getStoreSettings();
+  const legal = resolveLegalData(settings);
+  const privacyEmail = legal.privacyEmail;
 
   return (
     <ContentPage
       kicker="Legal"
       title="Tratamiento de datos"
       intro="Política de tratamiento de datos personales conforme a la Ley 1581 de 2012 y al Decreto 1074 de 2015."
-      updatedAt={legalConfig.lastUpdated}
+      updatedAt={LEGAL_LAST_UPDATED}
     >
-      <LegalPendingNotice />
+      <LegalPendingNotice pending={legal.pending} />
 
       <Prose>
         <h2>1. Responsable</h2>
         <p>
-          <strong>{legalConfig.legalName}</strong>, NIT {legalConfig.taxId}, domiciliada en{' '}
-          {legalConfig.address}, {legalConfig.city}, es la responsable del tratamiento de los datos
+          <strong>{legal.legalName}</strong>, NIT {legal.taxId}, domiciliada en{' '}
+          {legal.address}, {legal.city}, es la responsable del tratamiento de los datos
           personales recogidos a través de {siteConfig.name}
           {privacyEmail && (
             <>
@@ -159,7 +160,7 @@ export default async function TratamientoDatosPage() {
 
         <h2>12. Vigencia</h2>
         <p>
-          Esta política rige desde el {legalConfig.lastUpdated}. Los datos se conservarán mientras
+          Esta política rige desde el {LEGAL_LAST_UPDATED}. Los datos se conservarán mientras
           sea necesario para cumplir las finalidades descritas y los plazos legales aplicables.
           Cualquier modificación se publicará en esta página.
         </p>

@@ -28,6 +28,19 @@ export const storeSettingsSchema = z.object({
     .transform((v) => v || undefined),
   contactPhone: optionalText(30),
   announcement: optionalText(120),
+  // Datos del responsable para las páginas legales (todos opcionales: la
+  // tienda funciona sin ellos, pero las políticas muestran un aviso).
+  legalName: optionalText(120),
+  taxId: optionalText(30),
+  legalAddress: optionalText(160),
+  legalCity: optionalText(80),
+  privacyEmail: z
+    .string()
+    .trim()
+    .email('Correo no válido')
+    .optional()
+    .or(z.literal(''))
+    .transform((v) => v || undefined),
 });
 
 export type StoreSettingsInput = z.infer<typeof storeSettingsSchema>;

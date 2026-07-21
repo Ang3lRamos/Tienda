@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ContentPage, Prose } from '@/components/shared/content-page';
 import { LegalPendingNotice } from '@/components/shared/legal-pending-notice';
-import { legalConfig } from '@/config/legal';
+import { LEGAL_LAST_UPDATED, resolveLegalData } from '@/config/legal';
 import { siteConfig } from '@/config/site';
 import { getStoreSettings } from '@/features/settings/queries';
 
@@ -12,18 +12,19 @@ export const metadata: Metadata = {
 };
 
 export default async function TerminosPage() {
-  const { contactEmail } = await getStoreSettings();
+  const settings = await getStoreSettings();
+  const legal = resolveLegalData(settings);
+  const { contactEmail } = settings;
 
   return (
-    <ContentPage kicker="Legal" title="Términos y condiciones" updatedAt={legalConfig.lastUpdated}>
-      <LegalPendingNotice />
+    <ContentPage kicker="Legal" title="Términos y condiciones" updatedAt={LEGAL_LAST_UPDATED}>
+      <LegalPendingNotice pending={legal.pending} />
 
       <Prose>
         <h2>1. Identificación del responsable</h2>
         <p>
-          Este sitio es operado por <strong>{legalConfig.legalName}</strong>, identificada con NIT{' '}
-          <strong>{legalConfig.taxId}</strong>, con domicilio en {legalConfig.address},{' '}
-          {legalConfig.city}
+          Este sitio es operado por <strong>{legal.legalName}</strong>, identificada con NIT{' '}
+          <strong>{legal.taxId}</strong>, con domicilio en {legal.address}, {legal.city}
           {contactEmail && (
             <>
               . Correo de contacto: <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
@@ -127,7 +128,7 @@ export default async function TerminosPage() {
         <h2>10. Propiedad intelectual</h2>
         <p>
           Las marcas, los textos, las fotografías, el diseño del sitio y el resto de contenidos son
-          propiedad de {legalConfig.legalName} o de sus licenciantes, y están protegidos por la
+          propiedad de {legal.legalName} o de sus licenciantes, y están protegidos por la
           normativa de propiedad intelectual. No está permitida su reproducción o explotación sin
           autorización previa y escrita.
         </p>
@@ -158,7 +159,7 @@ export default async function TerminosPage() {
         <h2>14. Ley aplicable y controversias</h2>
         <p>
           Estos términos se rigen por la legislación colombiana. Cualquier controversia se someterá
-          a los jueces competentes de {legalConfig.city}. Antes de acudir a la vía judicial puedes
+          a los jueces competentes de {legal.city}. Antes de acudir a la vía judicial puedes
           presentar tu reclamación por los canales indicados en{' '}
           <Link href="/contacto">Contacto</Link>, o ante la Superintendencia de Industria y
           Comercio.

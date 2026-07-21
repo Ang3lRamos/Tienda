@@ -424,14 +424,22 @@ export async function updateStoreSettings(input: unknown): Promise<Result> {
         contact_email: s.contactEmail ?? null,
         contact_phone: s.contactPhone ?? null,
         announcement: s.announcement ?? null,
+        legal_name: s.legalName ?? null,
+        tax_id: s.taxId ?? null,
+        legal_address: s.legalAddress ?? null,
+        legal_city: s.legalCity ?? null,
+        privacy_email: s.privacyEmail ?? null,
       } as never,
       { onConflict: 'id' },
     );
 
   if (error) {
+    // PGRST204: la columna no existe en el esquema → falta una migración.
+    const missingLegal = error.code === 'PGRST204' && /legal_|tax_id|privacy_email/.test(error.message);
     return {
-      error:
-        'No fue posible guardar. ¿Ejecutaste la migración 0005_settings.sql en Supabase?',
+      error: missingLegal
+        ? 'Faltan columnas legales. Ejecuta la migración 0007_legal_settings.sql en Supabase.'
+        : 'No fue posible guardar. ¿Ejecutaste las migraciones 0005 y 0007 en Supabase?',
     };
   }
 

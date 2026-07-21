@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ContentPage, Prose } from '@/components/shared/content-page';
 import { LegalPendingNotice } from '@/components/shared/legal-pending-notice';
-import { legalConfig } from '@/config/legal';
+import { LEGAL_LAST_UPDATED, resolveLegalData } from '@/config/legal';
 import { siteConfig } from '@/config/site';
 import { getStoreSettings } from '@/features/settings/queries';
 
@@ -12,23 +12,24 @@ export const metadata: Metadata = {
 };
 
 export default async function PrivacidadPage() {
-  const { contactEmail } = await getStoreSettings();
-  const privacyEmail = legalConfig.privacyEmail ?? contactEmail;
+  const settings = await getStoreSettings();
+  const legal = resolveLegalData(settings);
+  const privacyEmail = legal.privacyEmail;
 
   return (
     <ContentPage
       kicker="Legal"
       title="Política de privacidad"
       intro="Qué datos recogemos, para qué los usamos, con quién los compartimos y cómo puedes controlarlos."
-      updatedAt={legalConfig.lastUpdated}
+      updatedAt={LEGAL_LAST_UPDATED}
     >
-      <LegalPendingNotice />
+      <LegalPendingNotice pending={legal.pending} />
 
       <Prose>
         <h2>1. Responsable del tratamiento</h2>
         <p>
-          <strong>{legalConfig.legalName}</strong>, NIT {legalConfig.taxId}, con domicilio en{' '}
-          {legalConfig.address}, {legalConfig.city}
+          <strong>{legal.legalName}</strong>, NIT {legal.taxId}, con domicilio en{' '}
+          {legal.address}, {legal.city}
           {privacyEmail && (
             <>
               . Para cualquier asunto relacionado con tus datos, escribe a{' '}

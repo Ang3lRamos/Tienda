@@ -27,6 +27,11 @@ export default async function AdminSettingsPage() {
           contactEmail: settings.contactEmail ?? undefined,
           contactPhone: settings.contactPhone ?? undefined,
           announcement: settings.announcement ?? undefined,
+          legalName: settings.legalName ?? undefined,
+          taxId: settings.taxId ?? undefined,
+          legalAddress: settings.legalAddress ?? undefined,
+          legalCity: settings.legalCity ?? undefined,
+          privacyEmail: settings.privacyEmail ?? undefined,
         }}
       />
 

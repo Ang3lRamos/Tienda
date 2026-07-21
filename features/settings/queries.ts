@@ -19,6 +19,13 @@ export interface StoreSettings {
   contactEmail: string | null;
   contactPhone: string | null;
   announcement: string | null;
+  // Datos del responsable para las páginas legales (Ley 1581 de 2012).
+  legalName: string | null;
+  taxId: string | null;
+  legalAddress: string | null;
+  legalCity: string | null;
+  /** Correo de habeas data; si es null, se usa `contactEmail`. */
+  privacyEmail: string | null;
 }
 
 export const DEFAULT_SETTINGS: StoreSettings = {
@@ -29,15 +36,21 @@ export const DEFAULT_SETTINGS: StoreSettings = {
   contactEmail: null,
   contactPhone: null,
   announcement: null,
+  legalName: null,
+  taxId: null,
+  legalAddress: null,
+  legalCity: null,
+  privacyEmail: null,
 };
 
 export async function getStoreSettings(): Promise<StoreSettings> {
   const supabase = await createServerSupabase();
+  // `select('*')` (en vez de columnas explícitas) tolera que la migración 0007
+  // aún no esté aplicada: si faltan las columnas legales, llegan como undefined
+  // y se resuelven a null, sin perder los datos de envío que sí existen.
   const { data, error } = await supabase
     .from('store_settings')
-    .select(
-      'shipping_cost, free_shipping_threshold, tax_rate, store_name, contact_email, contact_phone, announcement',
-    )
+    .select('*')
     .match({ id: 1 })
     .maybeSingle();
 
@@ -51,6 +64,11 @@ export async function getStoreSettings(): Promise<StoreSettings> {
     contact_email: string | null;
     contact_phone: string | null;
     announcement: string | null;
+    legal_name?: string | null;
+    tax_id?: string | null;
+    legal_address?: string | null;
+    legal_city?: string | null;
+    privacy_email?: string | null;
   };
 
   return {
@@ -61,6 +79,11 @@ export async function getStoreSettings(): Promise<StoreSettings> {
     contactEmail: s.contact_email,
     contactPhone: s.contact_phone,
     announcement: s.announcement,
+    legalName: s.legal_name ?? null,
+    taxId: s.tax_id ?? null,
+    legalAddress: s.legal_address ?? null,
+    legalCity: s.legal_city ?? null,
+    privacyEmail: s.privacy_email ?? null,
   };
 }
 

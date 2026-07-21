@@ -4,7 +4,7 @@ import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { Truck, Receipt, Store } from 'lucide-react';
+import { Truck, Receipt, Store, Scale } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/features/auth/components/field';
 import { updateStoreSettings } from '../actions';
@@ -137,6 +137,58 @@ export function SettingsForm({ defaultValues }: { defaultValues: StoreSettingsIn
               placeholder="p. ej. Envío gratis desde $200.000"
               error={errors.announcement?.message}
               {...register('announcement')}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Datos legales */}
+      <section className="border-2 border-foreground p-5 sm:p-6">
+        <h2 className="mb-1 flex items-center gap-2 text-2xl">
+          <Scale className="size-5" /> Datos legales
+        </h2>
+        <p className="mb-5 text-sm text-muted-foreground">
+          Aparecen en los términos, la política de privacidad y la de tratamiento de datos.
+          Mientras falten, esas páginas muestran un aviso de &quot;documento sin finalizar&quot;.
+          Aun así, revisa los textos con un abogado antes de abrir la tienda.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field
+            id="legalName"
+            label="Razón social"
+            placeholder="p. ej. Átelier Moda S.A.S."
+            error={errors.legalName?.message}
+            {...register('legalName')}
+          />
+          <Field
+            id="taxId"
+            label="NIT"
+            placeholder="p. ej. 901.234.567-8"
+            error={errors.taxId?.message}
+            {...register('taxId')}
+          />
+          <Field
+            id="legalAddress"
+            label="Domicilio"
+            placeholder="p. ej. Calle 10 #20-30"
+            error={errors.legalAddress?.message}
+            {...register('legalAddress')}
+          />
+          <Field
+            id="legalCity"
+            label="Ciudad"
+            placeholder="p. ej. Medellín"
+            error={errors.legalCity?.message}
+            {...register('legalCity')}
+          />
+          <div className="sm:col-span-2">
+            <Field
+              id="privacyEmail"
+              label="Correo de habeas data (opcional)"
+              type="email"
+              placeholder="Si lo dejas vacío, se usa el correo de contacto"
+              error={errors.privacyEmail?.message}
+              {...register('privacyEmail')}
             />
           </div>
         </div>

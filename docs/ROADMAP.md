@@ -152,10 +152,14 @@ Bloqueantes para abrir al público:
 - ✅ **Páginas legales**: `/legal/terminos`, `/legal/privacidad` y
   `/legal/tratamiento-datos` (Ley 1581 de 2012 y Estatuto del Consumidor).
   Enlazadas en la barra inferior del footer y añadidas al `sitemap.ts`.
-  ⚠️ **Son una plantilla de partida**: hay que completar `config/legal.ts`
-  (razón social, NIT, domicilio, ciudad) y someterlas a revisión legal. Mientras
-  falten datos, las tres páginas muestran un aviso visible de "documento sin
-  finalizar".
+  ⚠️ **Los textos son una plantilla de partida** y deben someterse a revisión
+  legal. Los datos del responsable (razón social, NIT, domicilio, ciudad,
+  correo de habeas data) se editan desde **Panel → Configuración**, ya no en
+  código (migración `0007_legal_settings.sql` amplía `store_settings`; **el
+  usuario debe correrla**). Mientras falten, las tres páginas muestran un aviso
+  visible de "documento sin finalizar". `getStoreSettings` usa `select('*')`,
+  así que sin 0007 la tienda sigue operando y los campos legales quedan
+  pendientes; al guardar sin la migración, el panel avisa de que falta correrla.
 - ✅ **Correos transaccionales**: capa desacoplada en `services/email` con el
   mismo patrón que `services/payments` (interfaz `EmailProvider` + registro;
   proveedor Resend sobre su API REST, sin dependencias nuevas).

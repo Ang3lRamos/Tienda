@@ -1,13 +1,12 @@
 import { AlertTriangle } from 'lucide-react';
-import { hasPendingLegalData } from '@/config/legal';
 
 /**
- * Aviso visible mientras los datos del responsable sigan sin completarse en
- * `config/legal.ts`. Evita publicar una política legal con huecos sin que nadie
- * se dé cuenta.
+ * Aviso visible mientras los datos del responsable sigan sin completarse.
+ * La bandera la calcula `resolveLegalData` a partir de `store_settings`.
+ * Evita publicar una política legal con huecos sin que nadie lo note.
  */
-export function LegalPendingNotice() {
-  if (!hasPendingLegalData()) return null;
+export function LegalPendingNotice({ pending }: { pending: boolean }) {
+  if (!pending) return null;
 
   return (
     <div className="mb-10 flex gap-3 border-2 border-foreground bg-muted p-4 text-sm">
@@ -15,8 +14,8 @@ export function LegalPendingNotice() {
       <div className="space-y-1">
         <p className="font-display font-bold uppercase">Documento sin finalizar</p>
         <p className="text-muted-foreground">
-          Faltan los datos del responsable (razón social, NIT y domicilio) en{' '}
-          <code className="font-mono text-foreground">config/legal.ts</code>. Este texto es una
+          Faltan los datos del responsable (razón social, NIT y domicilio). Complétalos en{' '}
+          <strong className="text-foreground">Panel → Configuración</strong>. Este texto es una
           plantilla de partida y debe revisarlo un abogado antes de abrir la tienda al público.
         </p>
       </div>
